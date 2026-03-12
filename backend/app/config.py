@@ -15,6 +15,16 @@ class Settings(BaseSettings):
     MEILISEARCH_URL: str = "http://127.0.0.1:7700"
     MEILISEARCH_MASTER_KEY: str = "masterKey"
 
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://localhost:5174"
+    
+    RATE_LIMIT_REQUESTS: int = 100
+    RATE_LIMIT_WINDOW: int = 60
+    
+    LOG_LEVEL: str = "INFO"
+    SENTRY_DSN: str = ""
+    
+    ENVIRONMENT: str = "development"
+
     class Config:
         env_file = ".env"
 
