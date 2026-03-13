@@ -2,18 +2,20 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    DATABASE_URL: str
+    JWT_SECRET: str
+    JWT_ALGORITHM: str
 
-    DATABASE_URL: str = "postgresql://postgres:niharika31@localhost:5432/sufi"
+    DEBUG: bool = False
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-    JWT_SECRET: str = "SUPER_SECRET_CHANGE_IN_PRODUCTION"
-    JWT_ALGORITHM: str = "HS256"
+    REDIS_URL: str | None = None
+    REDIS_HOST: str | None = None
+    REDIS_PORT: int | None = None
+    REDIS_DB: int | None = None
 
-    REDIS_URL: str = "redis://localhost:6379"
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    
-    MEILISEARCH_URL: str = "http://127.0.0.1:7700"
-    MEILISEARCH_MASTER_KEY: str = "masterKey"
+    MEILISEARCH_URL: str | None = None
+    MEILISEARCH_MASTER_KEY: str | None = None
 
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://localhost:5174"
     

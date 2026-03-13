@@ -28,7 +28,8 @@ from app.routes import (
     subscription_routes,
     review_routes,
     location_routes,
-    ws_routes
+    ws_routes,
+    vector_routes
 )
 
 app = FastAPI(title="SUFI API")
@@ -53,6 +54,7 @@ app.include_router(subscription_routes.router)
 app.include_router(review_routes.router)
 app.include_router(location_routes.router)
 app.include_router(ws_routes.router)
+app.include_router(vector_routes.router)
 
 @app.get("/")
 def root():

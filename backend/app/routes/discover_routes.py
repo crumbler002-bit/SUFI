@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.restaurant import Restaurant
-from app.utils.redis_client import redis_client, REDIS_AVAILABLE
+from app.redis_client import redis_client
 import json
 
 router = APIRouter(prefix="/restaurants")
@@ -14,14 +14,14 @@ def discover(
     limit: int = 10,
     db: Session = Depends(get_db)
 ):
+    # Try to get from cache first
+    cache_key = f"discover:{city or 'all'}:{page}:{limit}"
+    cached_result = redis_client.get(cache_key)
+    
+    if cached_result:
+        return cached_result
 
-    # Only use Redis if available
-    if REDIS_AVAILABLE:
-        cache_key = f"discover:{city}:{page}:{limit}"
-        cached = redis_client.get(cache_key)
-        if cached:
-            return json.loads(cached)
-
+    # If not in cache, query database
     query = db.query(Restaurant)
 
     if city:
@@ -36,16 +36,18 @@ def discover(
 
     result = [
         {
-            "id": str(r.id),
+            "id": r.id,
             "name": r.name,
             "city": r.city,
-            "cuisine": r.cuisine
+            "cuisine": r.cuisine,
+            "rating": r.rating,
+            "price_range": r.price_range,
+            "description": r.description
         }
         for r in restaurants
     ]
 
-    # Only cache if Redis is available
-    if REDIS_AVAILABLE:
-        redis_client.setex(cache_key, 300, json.dumps(result))
+    # Cache the result for 5 minutes (300 seconds)
+    redis_client.set(cache_key, result, expire_seconds=300)
 
     return result

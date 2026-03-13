@@ -11,8 +11,78 @@ from app.models.review import Review
 from app.utils.redis_client import redis_client
 from app.services.location_service import haversine_distance
 
+def calculate_intelligent_ranking_score(restaurant: Restaurant) -> float:
+    """
+    Phase-1 Intelligent Ranking AI Score
+    Calculates restaurant score based on:
+    - rating (50% weight)
+    - reviews (20% weight) 
+    - reservations (20% weight)
+    - popularity (10% weight)
+    """
+    # Rating score (50% weight) - normalize to 0-5 scale
+    rating_score = (restaurant.rating or 0) * 0.5
+    
+    # Review score (20% weight) - normalize reviews (assume max 100 reviews for scoring)
+    review_score = min((restaurant.total_reviews or 0) / 100.0, 1.0) * 5 * 0.2
+    
+    # Reservation score (20% weight) - normalize reservations (assume max 200 for scoring)
+    reservation_score = min((restaurant.reservation_count or 0) / 200.0, 1.0) * 5 * 0.2
+    
+    # Popularity score (10% weight) - use popularity_score directly (assume 0-5 scale)
+    popularity_score = (restaurant.popularity_score or 0) * 0.1
+    
+    # Total score (0-5 scale)
+    total_score = rating_score + review_score + reservation_score + popularity_score
+    
+    return total_score
+
+def get_intelligent_recommendations(db: Session, limit: int = 10) -> List[Dict[str, Any]]:
+    """
+    Get Phase-1 Intelligent Ranking recommendations
+    Simple, fast, and effective ranking without ML
+    """
+    try:
+        # Get all restaurants
+        restaurants = db.query(Restaurant).all()
+        
+        # Calculate scores and rank
+        scored_restaurants = []
+        for restaurant in restaurants:
+            score = calculate_intelligent_ranking_score(restaurant)
+            
+            scored_restaurants.append({
+                "id": restaurant.id,
+                "name": restaurant.name,
+                "cuisine": restaurant.cuisine,
+                "rating": restaurant.rating or 0.0,
+                "total_reviews": restaurant.total_reviews or 0,
+                "reservation_count": restaurant.reservation_count or 0,
+                "popularity_score": restaurant.popularity_score or 0.0,
+                "price_range": restaurant.price_range,
+                "city": restaurant.city,
+                "address": restaurant.address,
+                "is_featured": restaurant.is_featured or False,
+                "intelligent_score": score,
+                "score_breakdown": {
+                    "rating_score": (restaurant.rating or 0) * 0.5,
+                    "review_score": min((restaurant.total_reviews or 0) / 100.0, 1.0) * 5 * 0.2,
+                    "reservation_score": min((restaurant.reservation_count or 0) / 200.0, 1.0) * 5 * 0.2,
+                    "popularity_score": (restaurant.popularity_score or 0) * 0.1
+                }
+            })
+        
+        # Sort by intelligent score (descending)
+        scored_restaurants.sort(key=lambda x: x["intelligent_score"], reverse=True)
+        
+        # Return top recommendations
+        return scored_restaurants[:limit]
+        
+    except Exception as e:
+        print(f"Error getting intelligent recommendations: {e}")
+        return []
+
 def update_user_preference(db: Session, user_id: str, cuisine: str) -> bool:
-    """Update user preference weight for a cuisine"""
     try:
         # Check if preference exists
         pref = db.query(UserPreference).filter(

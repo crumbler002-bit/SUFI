@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Boolean, Index
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Boolean, Index, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -25,6 +25,9 @@ class Restaurant(Base):
     is_featured = Column(Boolean, default=False)
     commission_rate = Column(Float, default=0.05)
     total_reviews = Column(Integer, default=0)
+    reservation_count = Column(Integer, default=0)
+    popularity_score = Column(Float, default=0.0)
+    embedding = Column(JSON)  # Store embedding vector as JSON
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
