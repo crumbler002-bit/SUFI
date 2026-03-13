@@ -8,8 +8,13 @@ from app.models.restaurant import Restaurant
 from app.middleware.auth_middleware import get_current_user
 from app.utils.search_client import index_restaurant, search_restaurants, get_autocomplete_suggestions, setup_search_index, reindex_all_restaurants
 from app.services.recommendation_service import get_personalized_recommendations, get_similar_users_recommendations, update_user_preference, get_intelligent_recommendations
+from app.services.ai_concierge_service import ai_restaurant_search
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/restaurants")
+
+class AIConciergeRequest(BaseModel):
+    query: str
 
 @router.get("/discover")
 def discover(
@@ -296,5 +301,19 @@ def get_intelligent_recommendations_endpoint(
         
     except Exception as e:
         print("INTELLIGENT RECOMMENDATIONS ERROR:")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/ai-concierge")
+def ai_concierge(request: AIConciergeRequest, db: Session = Depends(get_db)):
+    """
+    AI-powered restaurant search with natural language query understanding
+    """
+    try:
+        result = ai_restaurant_search(db, request.query)
+        return result
+        
+    except Exception as e:
+        print("AI CONCIERGE ERROR:")
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
