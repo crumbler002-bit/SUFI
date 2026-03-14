@@ -233,7 +233,7 @@ def get_personalized_recommendations(
     cache_key = f"recommend:{user_id}:{limit}"
     cached = redis_client.get(cache_key)
     if cached:
-        return json.loads(cached)
+        return cached
     
     try:
         # Get user preferences
@@ -291,7 +291,7 @@ def get_personalized_recommendations(
         recommendations = scored_restaurants[:limit]
         
         # Cache for 5 minutes
-        redis_client.setex(cache_key, 300, json.dumps(recommendations))
+        redis_client.set(cache_key, recommendations, expire_seconds=300)
         
         return recommendations
         
@@ -311,21 +311,19 @@ def get_similar_users_recommendations(db: Session, user_id: str, limit: int = 10
         
         # Find users with similar cuisine preferences
         similar_users_query = text("""
-            SELECT DISTINCT r2.user_id, COUNT(*) as common_cuisines
+            SELECT up2.user_id AS user_id, COUNT(*) AS common_cuisines
             FROM user_preferences up1
-            JOIN user_preferences up2 ON up1.cuisine = up2.cuisine AND up1.user_id != up2.user_id
+            JOIN user_preferences up2
+              ON up1.cuisine = up2.cuisine
+             AND up1.user_id != up2.user_id
             WHERE up1.user_id = :user_id
-            AND up2.cuisine IN :cuisines
-            GROUP BY r2.user_id
+            GROUP BY up2.user_id
             HAVING COUNT(*) >= 2
             ORDER BY common_cuisines DESC
             LIMIT 5
         """)
-        
-        similar_users = db.execute(similar_users_query, {
-            "user_id": user_id,
-            "cuisines": tuple(user_cuisines)
-        }).fetchall()
+
+        similar_users = db.execute(similar_users_query, {"user_id": user_id}).fetchall()
         
         if not similar_users:
             return []
@@ -334,23 +332,23 @@ def get_similar_users_recommendations(db: Session, user_id: str, limit: int = 10
         
         # Get restaurants booked by similar users that the current user hasn't tried
         recommendations_query = text("""
-            SELECT DISTINCT r.*, COUNT(*) as booking_count
+            SELECT r.id, r.name, r.cuisine, r.rating, r.total_reviews, r.price_range, r.city, r.address, r.is_featured,
+                   COUNT(res.id) AS booking_count
             FROM reservations res
             JOIN restaurants r ON res.restaurant_id = r.id
-            WHERE res.user_id IN :similar_user_ids
-            AND res.restaurant_id NOT IN (
-                SELECT restaurant_id FROM reservations WHERE user_id = :user_id
-            )
+            WHERE res.user_id = ANY(:similar_user_ids)
+              AND res.restaurant_id NOT IN (
+                  SELECT restaurant_id FROM reservations WHERE user_id = :user_id
+              )
             GROUP BY r.id
             ORDER BY booking_count DESC, r.rating DESC
             LIMIT :limit
         """)
         
-        results = db.execute(recommendations_query, {
-            "similar_user_ids": tuple(similar_user_ids),
-            "user_id": user_id,
-            "limit": limit
-        }).fetchall()
+        results = db.execute(
+            recommendations_query,
+            {"similar_user_ids": similar_user_ids, "user_id": user_id, "limit": limit},
+        ).fetchall()
         
         recommendations = []
         for row in results:

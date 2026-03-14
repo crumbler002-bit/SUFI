@@ -13,6 +13,11 @@ from app.models import (
     restaurant_table,
     restaurant_tier,
     restaurant,
+    restaurant_tag,
+    menu_category,
+    menu_item,
+    restaurant_analytics,
+    restaurant_promotion,
     review,
     user
 )
@@ -31,12 +36,17 @@ finally:
 from app.routes import (
     auth_routes,
     restaurant_routes,
+    restaurant_media_routes,
+    menu_routes,
     reservation_routes,
     discover_routes,
     trending_routes,
     owner_routes,
     subscription_routes,
     review_routes,
+    analytics_routes,
+    promotion_routes,
+    recommendation_routes,
     location_routes,
     ws_routes,
     vector_routes
@@ -56,12 +66,17 @@ app.add_middleware(
 )
 app.include_router(auth_routes.router)
 app.include_router(restaurant_routes.router)
+app.include_router(restaurant_media_routes.router)
+app.include_router(menu_routes.router)
 app.include_router(reservation_routes.router)
 app.include_router(discover_routes.router)
 app.include_router(trending_routes.router)
 app.include_router(owner_routes.router)
 app.include_router(subscription_routes.router)
 app.include_router(review_routes.router)
+app.include_router(analytics_routes.router)
+app.include_router(promotion_routes.router)
+app.include_router(recommendation_routes.router)
 app.include_router(location_routes.router)
 app.include_router(ws_routes.router)
 app.include_router(vector_routes.router)

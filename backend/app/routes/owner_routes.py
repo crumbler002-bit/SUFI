@@ -4,8 +4,10 @@ from app.database import get_db
 from app.models.restaurant import Restaurant
 from app.models.restaurant_brand import RestaurantBrand
 from app.models.reservation import Reservation
+from app.models.restaurant_tag import RestaurantTag
 from app.middleware.auth_middleware import get_current_user
 from app.schemas.restaurant_location_schema import RestaurantLocationCreate
+from app.schemas.owner_restaurant_profile_schema import OwnerRestaurantProfileUpdate
 from app.utils.search_client import index_restaurant
 
 router = APIRouter(prefix="/owner")
@@ -113,6 +115,58 @@ def create_location(
     index_restaurant(location)
 
     return {"brand_id": brand.id, "location": location}
+
+
+@router.patch("/restaurants/{id}/profile")
+def update_restaurant_profile(
+    id: int,
+    data: OwnerRestaurantProfileUpdate,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if getattr(current_user, "role", None) not in ["owner", "restaurant_owner"]:
+        raise HTTPException(status_code=403, detail="Owner access required")
+
+    restaurant = db.query(Restaurant).filter(
+        Restaurant.id == id,
+        Restaurant.owner_id == current_user.id,
+    ).first()
+
+    if restaurant is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    if data.about is not None:
+        restaurant.about = data.about
+    if data.price_range is not None:
+        restaurant.price_range = data.price_range
+    if data.logo_url is not None:
+        restaurant.logo_url = data.logo_url
+    if data.banner_url is not None:
+        restaurant.banner_url = data.banner_url
+
+    if data.tags is not None:
+        db.query(RestaurantTag).filter(RestaurantTag.restaurant_id == restaurant.id).delete()
+        for tag in data.tags:
+            if tag is None:
+                continue
+            cleaned = tag.strip()
+            if not cleaned:
+                continue
+            db.add(RestaurantTag(restaurant_id=restaurant.id, tag=cleaned))
+
+    db.commit()
+    db.refresh(restaurant)
+
+    index_restaurant(restaurant)
+
+    return {
+        "id": restaurant.id,
+        "about": restaurant.about,
+        "price_range": restaurant.price_range,
+        "logo_url": restaurant.logo_url,
+        "banner_url": restaurant.banner_url,
+        "tags": [t.tag for t in getattr(restaurant, "tags", [])],
+    }
 
 @router.get("/reservations")
 def owner_reservations(

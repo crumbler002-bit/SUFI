@@ -15,6 +15,9 @@ from app.services.reservation_service import (
 )
 from app.routes.ws_routes import broadcast_reservation_update
 from app.services.recommendation_service import update_user_preference
+from app.services.analytics_service import track_reservation
+from app.services.promotion_service import mark_promotion_reservation
+from app.utils.redis_client import redis_client as redis_raw_client, REDIS_AVAILABLE
 
 router = APIRouter(prefix="/reservations")
 
@@ -90,6 +93,9 @@ async def create_reservation(
         db.add(payment)
         db.commit()
 
+        track_reservation(db, restaurant.id)
+        mark_promotion_reservation(db, restaurant.id)
+
         # Broadcast real-time update to all connected clients
         await broadcast_reservation_update(
             restaurant_id=reservation.restaurant_id,
@@ -99,6 +105,9 @@ async def create_reservation(
 
         # Update user preference based on restaurant cuisine
         update_user_preference(db, current_user.id, restaurant.cuisine)
+
+        if REDIS_AVAILABLE and redis_raw_client:
+            redis_raw_client.delete(f"recommend:{current_user.id}:20")
 
         return {
             "reservation_id": reservation.id,

@@ -11,6 +11,9 @@ class Restaurant(Base):
     brand_id = Column(Integer, ForeignKey("restaurant_brands.id"), nullable=True)
     name = Column(String)
     description = Column(String)
+    logo_url = Column(String)
+    banner_url = Column(String)
+    about = Column(String)
     cuisine = Column(String)
     city = Column(String)
     address = Column(String)
@@ -34,6 +37,7 @@ class Restaurant(Base):
     # Relationships
     brand = relationship("RestaurantBrand", back_populates="locations")
     images = relationship("RestaurantImage", back_populates="restaurant")
+    tags = relationship("RestaurantTag", back_populates="restaurant")
     tables = relationship("RestaurantTable", back_populates="restaurant")
     reservations = relationship("Reservation", back_populates="restaurant")
     reviews = relationship("Review", back_populates="restaurant")

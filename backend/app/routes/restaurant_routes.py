@@ -11,6 +11,8 @@ from app.utils.search_client import index_restaurant, search_restaurants, get_au
 from app.services.recommendation_service import get_personalized_recommendations, get_similar_users_recommendations, update_user_preference, get_intelligent_recommendations
 from app.services.ai_concierge_service import ai_restaurant_search
 from pydantic import BaseModel
+from app.services.analytics_service import track_profile_view, track_search_impression
+from app.services.promotion_service import calculate_final_ranking, mark_promotion_impressions
 
 router = APIRouter(prefix="/restaurants")
 
@@ -54,6 +56,11 @@ def discover(
             .limit(limit)
             .all()
         )
+
+        track_search_impression(db, [r.id for r in restaurants])
+
+        restaurants = sorted(restaurants, key=lambda r: calculate_final_ranking(db, r), reverse=True)
+        mark_promotion_impressions(db, [r.id for r in restaurants])
         
         result = {
             "restaurants": [
@@ -191,6 +198,59 @@ def search_restaurants_endpoint(
             offset=offset
         )
         
+        hits = results.get("hits", [])
+        hit_ids: list[int] = []
+        for h in hits:
+            try:
+                hit_ids.append(int(h.get("id")))
+            except Exception:
+                continue
+
+        sponsored = []
+        organic = []
+        if hit_ids:
+            restaurants = (
+                db.query(Restaurant)
+                .filter(Restaurant.id.in_(hit_ids))
+                .all()
+            )
+            restaurants_by_id = {r.id: r for r in restaurants}
+
+            scored = []
+            for rid in hit_ids:
+                r = restaurants_by_id.get(rid)
+                if r is None:
+                    continue
+                scored.append((rid, calculate_final_ranking(db, r)))
+
+            scored.sort(key=lambda x: x[1], reverse=True)
+            ordered_ids = [rid for rid, _ in scored]
+
+            sponsored_ids = set()
+            now_sponsored = (
+                db.query(Restaurant)
+                .join(
+                    __import__("app.models.restaurant_promotion", fromlist=["RestaurantPromotion"]).RestaurantPromotion
+                )
+                .filter(
+                    Restaurant.id.in_(ordered_ids),
+                    __import__("app.models.restaurant_promotion", fromlist=["RestaurantPromotion"]).RestaurantPromotion.active == True,
+                )
+                .all()
+            )
+            sponsored_ids = {r.id for r in now_sponsored}
+
+            for rid in ordered_ids:
+                h = next((x for x in hits if str(x.get("id")) == str(rid)), None)
+                if h is None:
+                    continue
+                if rid in sponsored_ids:
+                    sponsored.append(h)
+                else:
+                    organic.append(h)
+
+            mark_promotion_impressions(db, [int(x.get("id")) for x in sponsored if x.get("id")])
+
         return {
             "query": q,
             "filters": {
@@ -200,7 +260,7 @@ def search_restaurants_endpoint(
                 "min_rating": min_rating,
                 "featured_only": featured_only
             },
-            "results": results.get("hits", []),
+            "results": sponsored + organic if (sponsored or organic) else hits,
             "total": results.get("estimatedTotalHits", 0),
             "processing_time_ms": results.get("processingTimeMs", 0)
         }
@@ -233,6 +293,8 @@ def get_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
     
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    track_profile_view(db, restaurant_id)
     
     return restaurant
 

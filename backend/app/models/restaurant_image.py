@@ -9,6 +9,7 @@ class RestaurantImage(Base):
     restaurant_id = Column(Integer, ForeignKey("restaurants.id"))
     image_url = Column(String)
     image_type = Column(String)
+    position = Column(Integer)
     
     # Relationship
     restaurant = relationship("Restaurant", back_populates="images")
