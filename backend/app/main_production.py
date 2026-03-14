@@ -11,6 +11,7 @@ from app.middleware.logging_middleware import LoggingMiddleware, SecurityLogging
 from app.models import (
     reservation,
     reservation_payment,
+    restaurant_brand,
     restaurant_image,
     restaurant_table,
     restaurant_tier,

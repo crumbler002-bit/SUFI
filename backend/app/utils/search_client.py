@@ -17,6 +17,7 @@ def setup_search_index():
         # Set up searchable attributes
         restaurants_index.update_searchable_attributes([
             "name",
+            "brand_name",
             "cuisine", 
             "city",
             "description",
@@ -58,6 +59,7 @@ def setup_search_index():
         restaurants_index.update_displayed_attributes([
             "id",
             "name",
+            "brand_name",
             "cuisine",
             "city",
             "tier_name",
@@ -93,9 +95,13 @@ def index_restaurant(restaurant) -> bool:
             except Exception:
                 tier_boost = 0.0
 
+        brand = getattr(restaurant, "brand", None)
+        brand_name = getattr(brand, "name", None)
+
         document = {
             "id": str(restaurant.id),
             "name": restaurant.name,
+            "brand_name": brand_name,
             "cuisine": restaurant.cuisine,
             "city": restaurant.city,
             "tier_name": tier_name,
@@ -209,6 +215,9 @@ def reindex_all_restaurants(db_session) -> bool:
             tier_name = getattr(tier, "name", None)
             tier_priority_rank = getattr(tier, "priority_rank", None)
 
+            brand = getattr(restaurant, "brand", None)
+            brand_name = getattr(brand, "name", None)
+
             tier_boost = 0.0
             if tier_name:
                 boost = TIER_BOOST.get(str(tier_name).strip().lower())
@@ -223,6 +232,7 @@ def reindex_all_restaurants(db_session) -> bool:
             documents.append({
                 "id": str(restaurant.id),
                 "name": restaurant.name,
+                "brand_name": brand_name,
                 "cuisine": restaurant.cuisine,
                 "city": restaurant.city,
                 "tier_name": tier_name,

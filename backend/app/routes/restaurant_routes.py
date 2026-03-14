@@ -5,6 +5,7 @@ import json
 from app.database import get_db
 from app.schemas.restaurant_schema import RestaurantCreate
 from app.models.restaurant import Restaurant
+from app.models.restaurant_brand import RestaurantBrand
 from app.middleware.auth_middleware import get_current_user
 from app.utils.search_client import index_restaurant, search_restaurants, get_autocomplete_suggestions, setup_search_index, reindex_all_restaurants
 from app.services.recommendation_service import get_personalized_recommendations, get_similar_users_recommendations, update_user_preference, get_intelligent_recommendations
@@ -101,9 +102,30 @@ def register_restaurant(
     db: Session = Depends(get_db)
 ):
     try:
-        import uuid
+        brand_name = (data.brand_name or data.name).strip() if (data.brand_name or data.name) else None
+
+        brand = None
+        if brand_name:
+            brand = (
+                db.query(RestaurantBrand)
+                .filter(
+                    RestaurantBrand.owner_id == current_user.id,
+                    RestaurantBrand.name == brand_name,
+                )
+                .first()
+            )
+            if brand is None:
+                brand = RestaurantBrand(
+                    name=brand_name,
+                    description=data.description,
+                    owner_id=current_user.id,
+                )
+                db.add(brand)
+                db.commit()
+                db.refresh(brand)
 
         restaurant = Restaurant(
+            brand_id=getattr(brand, "id", None),
             name=data.name,
             description=data.description,
             cuisine=data.cuisine,
@@ -121,7 +143,13 @@ def register_restaurant(
         # Index restaurant in MeiliSearch
         index_restaurant(restaurant)
 
-        return restaurant
+        return {
+            "brand": {
+                "id": getattr(brand, "id", None),
+                "name": getattr(brand, "name", None),
+            },
+            "location": restaurant,
+        }
 
     except Exception as e:
         print("ERROR OCCURRED:")

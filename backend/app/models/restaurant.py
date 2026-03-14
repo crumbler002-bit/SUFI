@@ -8,6 +8,7 @@ class Restaurant(Base):
     __tablename__ = "restaurants"
 
     id = Column(Integer, primary_key=True)
+    brand_id = Column(Integer, ForeignKey("restaurant_brands.id"), nullable=True)
     name = Column(String)
     description = Column(String)
     cuisine = Column(String)
@@ -31,6 +32,7 @@ class Restaurant(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
+    brand = relationship("RestaurantBrand", back_populates="locations")
     images = relationship("RestaurantImage", back_populates="restaurant")
     tables = relationship("RestaurantTable", back_populates="restaurant")
     reservations = relationship("Reservation", back_populates="restaurant")

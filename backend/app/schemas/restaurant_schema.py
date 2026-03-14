@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class RestaurantCreate(BaseModel):
+    brand_name: str | None = None
     name: str
     description: str
     cuisine: str
