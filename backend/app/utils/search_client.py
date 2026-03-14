@@ -1,6 +1,7 @@
 import meilisearch
 from app.config import settings
 from typing import Dict, List, Any, Optional
+from app.constants.tier_boost import TIER_BOOST
 
 client = meilisearch.Client(
     settings.MEILISEARCH_URL,
@@ -28,11 +29,14 @@ def setup_search_index():
             "cuisine",
             "price_range",
             "rating",
-            "is_featured"
+            "is_featured",
+            "tier_boost",
+            "tier_name",
         ])
         
         # Set up sortable attributes
         restaurants_index.update_sortable_attributes([
+            "tier_boost",
             "rating",
             "total_reviews",
             "created_at"
@@ -40,6 +44,8 @@ def setup_search_index():
         
         # Configure ranking rules
         restaurants_index.update_ranking_rules([
+            "desc(is_featured)",
+            "desc(tier_boost)",
             "words",
             "typo",
             "proximity",
@@ -54,6 +60,8 @@ def setup_search_index():
             "name",
             "cuisine",
             "city",
+            "tier_name",
+            "tier_boost",
             "rating",
             "total_reviews",
             "price_range",
@@ -70,11 +78,28 @@ def setup_search_index():
 def index_restaurant(restaurant) -> bool:
     """Index a single restaurant in MeiliSearch"""
     try:
+        tier = getattr(restaurant, "tier", None)
+        tier_name = getattr(tier, "name", None)
+        tier_priority_rank = getattr(tier, "priority_rank", None)
+
+        tier_boost = 0.0
+        if tier_name:
+            boost = TIER_BOOST.get(str(tier_name).strip().lower())
+            if boost is not None:
+                tier_boost = float(boost)
+        elif tier_priority_rank is not None:
+            try:
+                tier_boost = float(tier_priority_rank)
+            except Exception:
+                tier_boost = 0.0
+
         document = {
             "id": str(restaurant.id),
             "name": restaurant.name,
             "cuisine": restaurant.cuisine,
             "city": restaurant.city,
+            "tier_name": tier_name,
+            "tier_boost": tier_boost,
             "rating": restaurant.rating or 0,
             "total_reviews": restaurant.total_reviews or 0,
             "price_range": restaurant.price_range,
@@ -180,11 +205,28 @@ def reindex_all_restaurants(db_session) -> bool:
         # Prepare documents
         documents = []
         for restaurant in restaurants:
+            tier = getattr(restaurant, "tier", None)
+            tier_name = getattr(tier, "name", None)
+            tier_priority_rank = getattr(tier, "priority_rank", None)
+
+            tier_boost = 0.0
+            if tier_name:
+                boost = TIER_BOOST.get(str(tier_name).strip().lower())
+                if boost is not None:
+                    tier_boost = float(boost)
+            elif tier_priority_rank is not None:
+                try:
+                    tier_boost = float(tier_priority_rank)
+                except Exception:
+                    tier_boost = 0.0
+
             documents.append({
                 "id": str(restaurant.id),
                 "name": restaurant.name,
                 "cuisine": restaurant.cuisine,
                 "city": restaurant.city,
+                "tier_name": tier_name,
+                "tier_boost": tier_boost,
                 "rating": restaurant.rating or 0,
                 "total_reviews": restaurant.total_reviews or 0,
                 "price_range": restaurant.price_range,

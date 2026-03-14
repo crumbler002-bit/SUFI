@@ -18,6 +18,15 @@ from app.models import (
 
 Base.metadata.create_all(bind=engine)
 
+from app.database import SessionLocal
+from app.seed import seed_default_restaurant_tiers
+
+db = SessionLocal()
+try:
+    seed_default_restaurant_tiers(db)
+finally:
+    db.close()
+
 from app.routes import (
     auth_routes,
     restaurant_routes,

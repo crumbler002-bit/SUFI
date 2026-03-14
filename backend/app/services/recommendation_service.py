@@ -10,6 +10,34 @@ from app.models.reservation import Reservation
 from app.models.review import Review
 from app.utils.redis_client import redis_client
 from app.services.location_service import haversine_distance
+from app.constants.tier_boost import TIER_BOOST, TIER_BADGE
+
+
+def get_tier_boost(restaurant: Restaurant) -> float:
+    tier = getattr(restaurant, "tier", None)
+    tier_name = getattr(tier, "name", None)
+    tier_priority_rank = getattr(tier, "priority_rank", None)
+
+    if tier_name:
+        boost = TIER_BOOST.get(str(tier_name).strip().lower())
+        if boost is not None:
+            return float(boost)
+
+    if tier_priority_rank is not None:
+        try:
+            return float(tier_priority_rank)
+        except Exception:
+            return 0.0
+
+    return 0.0
+
+
+def get_tier_badge(restaurant: Restaurant) -> str | None:
+    tier = getattr(restaurant, "tier", None)
+    tier_name = getattr(tier, "name", None)
+    if not tier_name:
+        return TIER_BADGE.get("free")
+    return TIER_BADGE.get(str(tier_name).strip().lower())
 
 def calculate_intelligent_ranking_score(restaurant: Restaurant) -> float:
     """
@@ -31,9 +59,12 @@ def calculate_intelligent_ranking_score(restaurant: Restaurant) -> float:
     
     # Popularity score (10% weight) - use popularity_score directly (assume 0-5 scale)
     popularity_score = (restaurant.popularity_score or 0) * 0.1
+
+    # Tier boost - marketplace monetization lever
+    tier_boost = get_tier_boost(restaurant)
     
     # Total score (0-5 scale)
-    total_score = rating_score + review_score + reservation_score + popularity_score
+    total_score = rating_score + review_score + reservation_score + popularity_score + tier_boost
     
     return total_score
 
@@ -50,11 +81,17 @@ def get_intelligent_recommendations(db: Session, limit: int = 10) -> List[Dict[s
         scored_restaurants = []
         for restaurant in restaurants:
             score = calculate_intelligent_ranking_score(restaurant)
+            tier_boost = get_tier_boost(restaurant)
+            tier_name = getattr(getattr(restaurant, "tier", None), "name", None)
+            badge = get_tier_badge(restaurant)
             
             scored_restaurants.append({
                 "id": restaurant.id,
                 "name": restaurant.name,
                 "cuisine": restaurant.cuisine,
+                "tier": tier_name,
+                "tier_boost": tier_boost,
+                "badge": badge,
                 "rating": restaurant.rating or 0.0,
                 "total_reviews": restaurant.total_reviews or 0,
                 "reservation_count": restaurant.reservation_count or 0,
@@ -68,7 +105,8 @@ def get_intelligent_recommendations(db: Session, limit: int = 10) -> List[Dict[s
                     "rating_score": (restaurant.rating or 0) * 0.5,
                     "review_score": min((restaurant.total_reviews or 0) / 100.0, 1.0) * 5 * 0.2,
                     "reservation_score": min((restaurant.reservation_count or 0) / 200.0, 1.0) * 5 * 0.2,
-                    "popularity_score": (restaurant.popularity_score or 0) * 0.1
+                    "popularity_score": (restaurant.popularity_score or 0) * 0.1,
+                    "tier_boost": tier_boost,
                 }
             })
         

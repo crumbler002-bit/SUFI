@@ -42,8 +42,17 @@ def discover(
         # Get total count for pagination
         total = query.count()
         
-        # Apply pagination
-        restaurants = query.offset((page - 1) * limit).limit(limit).all()
+        # Apply ordering and pagination
+        restaurants = (
+            query.order_by(
+                Restaurant.is_featured.desc(),
+                Restaurant.tier_id.desc(),
+                Restaurant.rating.desc(),
+            )
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .all()
+        )
         
         result = {
             "restaurants": [

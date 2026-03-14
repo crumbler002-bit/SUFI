@@ -7,7 +7,7 @@ import json
 
 router = APIRouter(prefix="/restaurants")
 
-@router.get("/discover")
+@router.get("/discover-legacy")
 def discover(
     city: str = None,
     page: int = 1,
