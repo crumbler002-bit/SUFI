@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from app.constants.promotion_boost import PROMOTION_BOOST, MAX_ACTIVE_PROMOTIONS, MAX_DURATION_DAYS, COOLDOWN_DAYS
 from app.models.restaurant_promotion import RestaurantPromotion
+from app.services.recommendation_service import get_tier_boost
 
 
 def expire_promotions(db: Session) -> int:
@@ -105,7 +106,7 @@ def calculate_quality_score(restaurant) -> float:
 
 def calculate_final_ranking(db: Session, restaurant) -> float:
     quality_score = calculate_quality_score(restaurant)
-    tier_boost = float(getattr(restaurant, "tier_id", 0) or 0)
+    tier_boost = float(get_tier_boost(restaurant))
 
     promotion_boost = float(get_active_promotion_boost(db, restaurant.id))
 
