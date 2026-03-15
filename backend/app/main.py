@@ -19,7 +19,8 @@ from app.models import (
     restaurant_analytics,
     restaurant_promotion,
     review,
-    user
+    user,
+    waitlist_entry,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -49,7 +50,8 @@ from app.routes import (
     recommendation_routes,
     location_routes,
     ws_routes,
-    vector_routes
+    vector_routes,
+    waitlist_routes,
 )
 
 app = FastAPI(title="SUFI API")
@@ -80,6 +82,7 @@ app.include_router(recommendation_routes.router)
 app.include_router(location_routes.router)
 app.include_router(ws_routes.router)
 app.include_router(vector_routes.router)
+app.include_router(waitlist_routes.router)
 
 @app.get("/")
 def root():
