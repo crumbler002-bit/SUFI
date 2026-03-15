@@ -21,6 +21,7 @@ from app.models import (
     review,
     user,
     waitlist_entry,
+    dynamic_pricing_rule,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -52,6 +53,7 @@ from app.routes import (
     ws_routes,
     vector_routes,
     waitlist_routes,
+    dynamic_pricing_routes,
 )
 
 app = FastAPI(title="SUFI API")
@@ -83,6 +85,7 @@ app.include_router(location_routes.router)
 app.include_router(ws_routes.router)
 app.include_router(vector_routes.router)
 app.include_router(waitlist_routes.router)
+app.include_router(dynamic_pricing_routes.router)
 
 @app.get("/")
 def root():

@@ -5,6 +5,7 @@ from app.models.restaurant import Restaurant
 from app.models.restaurant_table import RestaurantTable
 from app.models.reservation import Reservation
 
+
 def round_to_timeslot(reservation_time: datetime, slot_duration_minutes: int = 90) -> datetime:
     """Round reservation time to the nearest time slot"""
     # Round to the nearest slot
@@ -62,21 +63,20 @@ def search_restaurants_with_availability(
     guests: int, 
     reservation_time: datetime
 ) -> list:
-    """Search restaurants in a city that have available tables for given time and guests"""
-    
-    # Round to time slot
+    """Search restaurants in a city that have available tables for given time and guests.
+    Attaches dynamic pricing offers where applicable."""
+    from app.services.dynamic_pricing_service import get_pricing_offer
+
     slot_time = round_to_timeslot(reservation_time)
-    
-    # Find restaurants in the city
     restaurants = db.query(Restaurant).filter(Restaurant.city == city).all()
     
     available_restaurants = []
     
     for restaurant in restaurants:
-        # Check if restaurant has available tables
         available_tables = search_available_tables(db, restaurant.id, guests, slot_time)
         
         if available_tables:
+            pricing = get_pricing_offer(db, restaurant.id, slot_time)
             available_restaurants.append({
                 "restaurant_id": restaurant.id,
                 "name": restaurant.name,
@@ -86,7 +86,9 @@ def search_restaurants_with_availability(
                 "price_range": restaurant.price_range,
                 "address": restaurant.address,
                 "is_featured": restaurant.is_featured,
-                "available_tables": available_tables
+                "available_tables": available_tables,
+                "demand_level": pricing["demand_level"],
+                "offer": pricing["offer"],
             })
     
     return available_restaurants
