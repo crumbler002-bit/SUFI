@@ -39,11 +39,13 @@ function AuthForm() {
         toast.success("Account created! Setting up your dashboard…");
       }
       router.push("/owner/intelligence");
-    } catch {
-      // Fallback for demo mode — store a placeholder so pages don't 401-loop
-      setToken("demo_mode");
-      toast.success("Demo mode — loading dashboard…");
-      router.push("/owner/intelligence");
+    } catch (err: any) {
+      const msg = err?.message ?? "";
+      if (msg.includes("401") || msg.includes("400")) {
+        toast.error("Invalid email or password");
+      } else {
+        toast.error("Could not reach server — check backend is running");
+      }
     } finally {
       setLoading(false);
     }

@@ -21,10 +21,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(owner)/owner/intelligence/page.js"
     ],
-    "/_not-found/page": [
+    "/(owner)/ai-concierge/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(owner)/ai-concierge/page.js"
+    ],
+    "/(owner)/reservations/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/reservations/page.js"
+    ],
+    "/(owner)/waitlist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/waitlist/page.js"
+    ],
+    "/(owner)/analytics/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/analytics/page.js"
+    ],
+    "/(owner)/owner/automation/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/owner/automation/page.js"
+    ],
+    "/(owner)/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/dashboard/page.js"
+    ],
+    "/(owner)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(owner)/layout.js"
     ]
   }
 }

@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     MEILISEARCH_URL: str | None = None
     MEILISEARCH_MASTER_KEY: str | None = None
 
+    OPENAI_API_KEY: str | None = None
+    OPENAI_MODEL: str = "gpt-4o-mini"
+
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://localhost:5174"
     
     RATE_LIMIT_REQUESTS: int = 100

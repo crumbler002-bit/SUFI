@@ -26,6 +26,11 @@ from app.services.ai.memory import (
     clear_history,
 )
 from app.services.ai.context_builder import build_user_context
+from app.services.ai.llm_client import (
+    LLM_AVAILABLE,
+    llm_parse_intent_and_entities,
+    llm_generate_reply,
+)
 from app.services.ai_concierge_service import (
     parse_intent,
     extract_entities,
@@ -122,34 +127,49 @@ def run_agent(
 
     Returns:
       {
-        "reply":        str,          # natural language response
+        "reply":        str,
         "intent":       str,
-        "entities":     dict,         # all entities collected so far
+        "entities":     dict,
         "restaurants":  list[dict],
-        "action":       dict | None,  # booking/cancel result if executed
-        "history":      list[dict],   # full session history (user+assistant only)
-        "needs_input":  str | None,   # follow-up question key if waiting for more info
+        "action":       dict | None,
+        "history":      list[dict],
+        "needs_input":  str | None,
       }
     """
     # 1. Persist user message
     save_message(session_id, "user", query)
 
-    # 2. Intent + entities from this turn
-    intent  = parse_intent(query)
-    new_ent = extract_entities(query)
+    # 2. Load full history for LLM context
+    history = get_history(session_id)
 
-    # 3. Merge with entities already collected in this session
+    # 3. Intent + entities — LLM first, keyword fallback
+    intent   = None
+    new_ent  = {}
+
+    if LLM_AVAILABLE:
+        parsed = llm_parse_intent_and_entities(query, history)
+        if parsed:
+            intent  = parsed.get("intent")
+            new_ent = {k: v for k, v in (parsed.get("entities") or {}).items() if v is not None}
+
+    # Fallback to keyword-based parsing
+    if not intent:
+        intent  = parse_intent(query)
+    if not new_ent:
+        new_ent = extract_entities(query)
+
+    # 4. Merge with entities already collected in this session
     session_ent = get_missing_entities(session_id)
     merged_ent  = {**session_ent, **{k: v for k, v in new_ent.items() if v}}
     save_entities(session_id, merged_ent)
 
-    # 4. Build personalized context
+    # 5. Build personalized context
     user_context = build_user_context(db, user)
 
-    # 5. Search restaurants (always — used for both recommend + booking)
-    search_result  = ai_restaurant_search(db, query)
-    restaurants    = _format_restaurants(search_result.get("results", []))
-    suggestions    = search_result.get("reservation_suggestions", [])
+    # 6. Search restaurants
+    search_result = ai_restaurant_search(db, query)
+    restaurants   = _format_restaurants(search_result.get("results", []))
+    suggestions   = search_result.get("reservation_suggestions", [])
 
     reply       = ""
     action      = None
@@ -162,18 +182,16 @@ def run_agent(
         else:
             missing = _first_missing(merged_ent, BOOKING_REQUIRED)
             if missing:
-                # Ask for the next missing piece
                 needs_input = missing
                 reply = _FOLLOWUP[missing]
             else:
-                # All entities present — execute booking
                 if restaurants:
                     top_id   = restaurants[0]["id"]
                     top_name = restaurants[0]["name"]
                     action   = handle_booking_action(db, user.id, top_id, merged_ent)
                     reply    = _build_booking_reply(action, top_name)
                     if action.get("status") in ("booked", "waitlisted"):
-                        clear_history(session_id)   # fresh session after booking
+                        clear_history(session_id)
                 else:
                     reply = "I couldn't find a matching restaurant for your request. Try a different cuisine or city."
 
@@ -187,7 +205,7 @@ def run_agent(
                 "and tap Cancel next to the booking you want to remove."
             )
 
-    # ── RECOMMENDATION FLOW ───────────────────────────────────────────────
+    # ── RECOMMENDATION / GENERAL ──────────────────────────────────────────
     elif intent in ("recommendation", "general"):
         reply = _build_recommendation_reply(restaurants, user_context)
 
@@ -201,23 +219,37 @@ def run_agent(
         else:
             reply = "No availability found for your criteria. Try a different time or date."
 
-    # 6. Persist assistant reply
+    # 7. If LLM available and no action was taken, upgrade the reply with LLM
+    if LLM_AVAILABLE and not action and not needs_input:
+        llm_reply = llm_generate_reply(
+            query=query,
+            history=history,
+            intent=intent,
+            entities=merged_ent,
+            restaurants=restaurants,
+            action=action,
+            user_context=user_context,
+        )
+        if llm_reply:
+            reply = llm_reply
+
+    # 8. Persist assistant reply
     save_message(session_id, "assistant", reply)
 
-    # 7. Return — filter internal _entities markers from visible history
+    # 9. Return visible history only
     visible_history = [
         m for m in get_history(session_id)
         if m["role"] in ("user", "assistant")
     ]
 
     return {
-        "reply":       reply,
-        "intent":      intent,
-        "entities":    merged_ent,
-        "restaurants": restaurants,
-        "suggestions": suggestions,
-        "action":      action,
-        "history":     visible_history,
-        "needs_input": needs_input,
+        "reply":        reply,
+        "intent":       intent,
+        "entities":     merged_ent,
+        "restaurants":  restaurants,
+        "suggestions":  suggestions,
+        "action":       action,
+        "history":      visible_history,
+        "needs_input":  needs_input,
         "user_context": user_context if user else None,
     }

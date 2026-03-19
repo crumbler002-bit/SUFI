@@ -17,8 +17,9 @@ type Role = "user" | "assistant";
 interface Message {
   id: number;
   role: Role;
-  content: string;        // user plain text
-  structured?: StructuredUI; // assistant structured UI
+  content: string;
+  structured?: StructuredUI;
+  restaurants?: import("@/types/concierge").ConciergeRestaurant[];
 }
 
 type StructuredUI =
@@ -136,11 +137,22 @@ const RESTAURANTS = [
   { name: "Fatty Bao",  emoji: "🥢", cuisine: "Pan-Asian · Tapas", rating: "4.4", price: "₹₹" },
 ];
 
-function RestaurantRecommendationCard() {
+function RestaurantRecommendationCard({ restaurants }: { restaurants?: import("@/types/concierge").ConciergeRestaurant[] }) {
+  const items = restaurants?.length
+    ? restaurants.slice(0, 4).map((r) => ({
+        name: r.name,
+        emoji: "🍽",
+        cuisine: [r.cuisine, r.city].filter(Boolean).join(" · "),
+        rating: r.rating?.toFixed(1) ?? "—",
+        price: r.price_range ?? "₹₹",
+        id: r.id,
+      }))
+    : RESTAURANTS.map((r) => ({ ...r, id: 0 }));
+
   return (
     <Card>
       <div className="grid grid-cols-2 gap-2">
-        {RESTAURANTS.map((r) => (
+        {items.map((r) => (
           <div key={r.name} className="bg-[#161422] border border-[#23203A] rounded-[10px] overflow-hidden hover:border-[#332F52] transition-colors">
             <div className="h-16 bg-[#1E1B2E] flex items-center justify-center text-[24px]">{r.emoji}</div>
             <div className="p-[9px]">
@@ -251,12 +263,20 @@ function WelcomeCard({ onSuggest }: { onSuggest: (t: string) => void }) {
   );
 }
 
-function StructuredResponse({ ui, onSuggest }: { ui: StructuredUI; onSuggest: (t: string) => void }) {
+function StructuredResponse({
+  ui,
+  onSuggest,
+  restaurants,
+}: {
+  ui: StructuredUI;
+  onSuggest: (t: string) => void;
+  restaurants?: import("@/types/concierge").ConciergeRestaurant[];
+}) {
   switch (ui.type) {
     case "welcome":                  return <WelcomeCard onSuggest={onSuggest} />;
     case "table_availability":       return <TableAvailabilityCard />;
     case "booking_form":             return <BookingFormCard />;
-    case "restaurant_recommendation":return <RestaurantRecommendationCard />;
+    case "restaurant_recommendation":return <RestaurantRecommendationCard restaurants={restaurants} />;
     case "metric_summary":           return <MetricSummaryCard />;
     case "risk_report":              return <RiskReportCard />;
     default:                         return null;
@@ -292,15 +312,31 @@ export default function ConciergePage() {
     chat.mutate({ query: text, sessionId }, {
       onSuccess: (res) => {
         setTyping(false);
-        setSessionId(res.session_id); // persist session for multi-turn
+        setSessionId(res.session_id);
         // Map backend intent to structured UI type
-        const uiType = (res.intent === "booking" ? "booking_form"
+        const uiType = (
+          res.intent === "booking"        ? "booking_form"
           : res.intent === "availability" ? "table_availability"
-          : res.intent === "recommendation" ? "restaurant_recommendation"
-          : matchIntent(text)) as StructuredUI["type"];
+          : res.intent === "recommendation" || res.intent === "general" ? "restaurant_recommendation"
+          : res.intent === "cancel"       ? "risk_report"
+          : matchIntent(text)
+        ) as StructuredUI["type"];
+
+        // If backend returned real restaurants, prefer recommendation card
+        const finalType: StructuredUI["type"] =
+          res.restaurants?.length > 0 && uiType !== "booking_form" && uiType !== "table_availability"
+            ? "restaurant_recommendation"
+            : uiType;
+
         setMessages((prev) => [
           ...prev,
-          { id: ++msgId, role: "assistant", content: res.reply || "", structured: { type: uiType } },
+          {
+            id: ++msgId,
+            role: "assistant",
+            content: res.reply || "",
+            structured: { type: finalType },
+            restaurants: res.restaurants,
+          } as Message,
         ]);
       },
       onError: () => {
@@ -407,7 +443,7 @@ export default function ConciergePage() {
                               </span>
                               <span>intent: {msg.structured.type.replace(/_/g, " ")}</span>
                             </div>
-                            <StructuredResponse ui={msg.structured} onSuggest={handleSuggest} />
+                            <StructuredResponse ui={msg.structured} onSuggest={handleSuggest} restaurants={msg.restaurants} />
                           </div>
                         )}
                       </>

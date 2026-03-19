@@ -1,6 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/login/page": "app/login/page.js",
   "/(public)/page": "app/(public)/page.js",
-  "/(owner)/owner/intelligence/page": "app/(owner)/owner/intelligence/page.js"
+  "/(owner)/waitlist/page": "app/(owner)/waitlist/page.js",
+  "/(owner)/reservations/page": "app/(owner)/reservations/page.js",
+  "/(owner)/analytics/page": "app/(owner)/analytics/page.js",
+  "/(owner)/dashboard/page": "app/(owner)/dashboard/page.js"
 }
