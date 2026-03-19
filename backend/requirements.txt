@@ -9,3 +9,7 @@ alembic
 redis
 python-multipart
 meilisearch
+scikit-learn
+joblib
+pandas
+numpy

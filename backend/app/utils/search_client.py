@@ -3,16 +3,21 @@ from app.config import settings
 from typing import Dict, List, Any, Optional
 from app.constants.tier_boost import TIER_BOOST
 
-client = meilisearch.Client(
-    settings.MEILISEARCH_URL,
-    settings.MEILISEARCH_MASTER_KEY
+# Only initialise the client when MeiliSearch is configured
+_MEILI_AVAILABLE = bool(settings.MEILISEARCH_URL)
+
+client = (
+    meilisearch.Client(settings.MEILISEARCH_URL, settings.MEILISEARCH_MASTER_KEY)
+    if _MEILI_AVAILABLE
+    else None
 )
 
-# Get or create the restaurants index
-restaurants_index = client.index("restaurants")
+restaurants_index = client.index("restaurants") if client else None
 
 def setup_search_index():
     """Configure the MeiliSearch index with proper settings"""
+    if not restaurants_index:
+        return
     try:
         # Set up searchable attributes
         restaurants_index.update_searchable_attributes([
@@ -79,6 +84,8 @@ def setup_search_index():
 
 def index_restaurant(restaurant) -> bool:
     """Index a single restaurant in MeiliSearch"""
+    if not restaurants_index:
+        return False
     try:
         tier = getattr(restaurant, "tier", None)
         tier_name = getattr(tier, "name", None)
@@ -145,6 +152,8 @@ def search_restaurants(
     offset: int = 0
 ) -> Dict[str, Any]:
     """Search restaurants with filters"""
+    if not restaurants_index:
+        return {"hits": [], "estimatedTotalHits": 0, "processingTimeMs": 0}
     try:
         # Build filter string
         filters = []
@@ -187,6 +196,8 @@ def search_restaurants(
 
 def get_autocomplete_suggestions(query: str, limit: int = 5) -> List[str]:
     """Get autocomplete suggestions for restaurant names"""
+    if not restaurants_index:
+        return []
     try:
         suggestions = restaurants_index.search(query, {
             "limit": limit,
@@ -202,6 +213,8 @@ def get_autocomplete_suggestions(query: str, limit: int = 5) -> List[str]:
 
 def reindex_all_restaurants(db_session) -> bool:
     """Reindex all restaurants from database"""
+    if not restaurants_index:
+        return False
     try:
         from app.models.restaurant import Restaurant
         

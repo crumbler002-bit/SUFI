@@ -13,9 +13,30 @@ class LoginRequest(BaseModel):
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    return register_user(db, user)
+    from fastapi import HTTPException
+    from app.models.user import User as UserModel
+    existing = db.query(UserModel).filter(UserModel.email == user.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    new_user = register_user(db, user)
+    from app.utils.jwt_handler import create_token
+    token = create_token({"user_id": str(new_user.id), "role": new_user.role})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": str(new_user.id), "email": new_user.email, "name": new_user.name, "role": new_user.role},
+    }
 
 @router.post("/login")
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    from fastapi import HTTPException
     token = login_user(db, login_data.email, login_data.password)
-    return {"access_token": token, "token_type": "bearer", "user": {"id": login_data.email, "email": login_data.email}}
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    from app.models.user import User
+    user = db.query(User).filter(User.email == login_data.email).first()
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": str(user.id), "email": user.email, "name": user.name, "role": user.role},
+    }

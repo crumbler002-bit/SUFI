@@ -32,6 +32,7 @@ class Restaurant(Base):
     reservation_count = Column(Integer, default=0)
     popularity_score = Column(Float, default=0.0)
     embedding = Column(JSON)  # Store embedding vector as JSON
+    auto_cancellation_enabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

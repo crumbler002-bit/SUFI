@@ -86,3 +86,7 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Trained ML models (binary artifacts — regenerate with training pipeline)
+backend/models/*.pkl
+models/*.pkl

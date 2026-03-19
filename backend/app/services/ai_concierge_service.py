@@ -279,3 +279,207 @@ def get_match_reasons(restaurant: Restaurant, intent: dict):
             reasons.append("Within budget")
 
     return reasons
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UPGRADED CONCIERGE — intent + entity extraction + action handler
+# ─────────────────────────────────────────────────────────────────────────────
+
+import re
+from datetime import date, timedelta
+
+
+def parse_intent(query: str) -> str:
+    """Classify the user's top-level intent."""
+    q = query.lower()
+    # cancel must be checked before booking ("cancel my reservation" contains "reservation")
+    if any(w in q for w in ("cancel", "cancellation")):
+        return "cancel"
+    if any(w in q for w in ("book", "reserve", "reservation", "table for")):
+        return "booking"
+    if any(w in q for w in ("recommend", "suggest", "best", "good", "where")):
+        return "recommendation"
+    if any(w in q for w in ("available", "availability", "free slot", "open")):
+        return "availability"
+    return "general"
+
+
+def extract_entities(query: str) -> dict:
+    """
+    Pull structured entities from a natural language query.
+    Returns: party_size, time_str, date_str, cuisine, city, price_limit
+    """
+    q = query.lower()
+    entities: dict = {}
+
+    # Party size — "for 4", "table for 2", "4 people", "party of 6"
+    party_match = re.search(
+        r"(?:for|party of|table for|group of)\s*(\d+)|(\d+)\s*(?:people|guests|persons|pax)",
+        q,
+    )
+    if party_match:
+        entities["party_size"] = int(party_match.group(1) or party_match.group(2))
+
+    # Time — "at 8pm", "at 7:30", "8 pm"
+    time_match = re.search(r"at\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?", q)
+    if time_match:
+        hour = int(time_match.group(1))
+        minute = int(time_match.group(2) or 0)
+        meridiem = time_match.group(3)
+        if meridiem == "pm" and hour < 12:
+            hour += 12
+        elif meridiem == "am" and hour == 12:
+            hour = 0
+        entities["time_str"] = f"{hour:02d}:{minute:02d}"
+
+    # Date — "tonight", "tomorrow", "this weekend"
+    today = date.today()
+    if "tonight" in q or "today" in q:
+        entities["date_str"] = today.isoformat()
+    elif "tomorrow" in q:
+        entities["date_str"] = (today + timedelta(days=1)).isoformat()
+    elif "weekend" in q:
+        days_ahead = 5 - today.weekday()  # next Saturday
+        if days_ahead <= 0:
+            days_ahead += 7
+        entities["date_str"] = (today + timedelta(days=days_ahead)).isoformat()
+
+    # Cuisine
+    cuisines = [
+        "italian", "chinese", "indian", "mexican", "japanese", "thai",
+        "korean", "french", "spanish", "american", "continental", "biryani",
+        "pizza", "sushi", "bbq", "seafood", "vegetarian", "vegan",
+    ]
+    for c in cuisines:
+        if c in q:
+            entities["cuisine"] = c.capitalize()
+            break
+
+    # City
+    cities = [
+        "delhi", "mumbai", "bangalore", "chennai", "kolkata",
+        "hyderabad", "pune", "jaipur", "lucknow", "chandigarh",
+    ]
+    for city in cities:
+        if city in q:
+            entities["city"] = city.capitalize()
+            break
+
+    # Price limit
+    price_match = re.search(
+        r"(?:under|below|less than|max|budget)\s*₹?\s*(\d+)", q
+    )
+    if price_match:
+        entities["price_limit"] = int(price_match.group(1))
+
+    return entities
+
+
+def handle_booking_action(
+    db,
+    user_id,
+    restaurant_id: int,
+    entities: dict,
+) -> dict:
+    """
+    If intent is booking and we have enough entities, auto-create a reservation.
+    Returns a result dict with status and reservation details.
+    """
+    from datetime import datetime
+    from app.services.table_optimization_service import auto_assign_and_create
+    from app.services.waitlist_service import add_to_waitlist
+
+    date_str = entities.get("date_str", date.today().isoformat())
+    time_str = entities.get("time_str", "19:00")
+    party_size = entities.get("party_size", 2)
+
+    try:
+        reservation_time = datetime.fromisoformat(f"{date_str}T{time_str}:00")
+    except ValueError:
+        return {"status": "error", "message": "Could not parse reservation time"}
+
+    if reservation_time <= datetime.utcnow():
+        return {"status": "error", "message": "Requested time is in the past"}
+
+    try:
+        reservation = auto_assign_and_create(
+            db=db,
+            restaurant_id=restaurant_id,
+            user_id=user_id,
+            reservation_time=reservation_time,
+            guests=party_size,
+        )
+        db.commit()
+        return {
+            "status": "booked",
+            "reservation_id": reservation.id,
+            "restaurant_id": restaurant_id,
+            "reservation_time": reservation_time.isoformat(),
+            "guests": party_size,
+            "table_id": reservation.table_id,
+        }
+    except ValueError:
+        # No table — add to waitlist
+        entry = add_to_waitlist(
+            db=db,
+            user_id=user_id,
+            restaurant_id=restaurant_id,
+            guests=party_size,
+            requested_time=reservation_time,
+        )
+        return {
+            "status": "waitlisted",
+            "waitlist_id": entry.id,
+            "restaurant_id": restaurant_id,
+            "requested_time": reservation_time.isoformat(),
+            "guests": party_size,
+        }
+
+
+def chat(db, query: str, user=None) -> dict:
+    """
+    Main concierge entry point.
+    1. Parse intent + entities
+    2. Search restaurants (existing ai_restaurant_search)
+    3. If booking intent + top result + authenticated user → auto-create
+    4. Return structured response
+    """
+    intent = parse_intent(query)
+    entities = extract_entities(query)
+
+    # Search restaurants using existing engine
+    search_result = ai_restaurant_search(db, query)
+    restaurants = search_result.get("results", [])
+
+    # Build a human-readable response
+    action_result = None
+
+    if intent == "booking" and restaurants and user is not None:
+        top = restaurants[0]["restaurant"]
+        restaurant_id = top.id if hasattr(top, "id") else top.get("id")
+        if restaurant_id:
+            action_result = handle_booking_action(db, user.id, restaurant_id, entities)
+
+    # Format restaurant list for response
+    formatted = []
+    for r in restaurants[:5]:
+        rest = r["restaurant"]
+        formatted.append({
+            "id": rest.id if hasattr(rest, "id") else rest.get("id"),
+            "name": rest.name if hasattr(rest, "name") else rest.get("name"),
+            "cuisine": rest.cuisine if hasattr(rest, "cuisine") else rest.get("cuisine"),
+            "rating": rest.rating if hasattr(rest, "rating") else rest.get("rating"),
+            "city": rest.city if hasattr(rest, "city") else rest.get("city"),
+            "address": rest.address if hasattr(rest, "address") else rest.get("address"),
+            "price_range": rest.price_range if hasattr(rest, "price_range") else rest.get("price_range"),
+            "match_reasons": r.get("match_reasons", []),
+        })
+
+    return {
+        "query": query,
+        "intent": intent,
+        "entities": entities,
+        "restaurants": formatted,
+        "reservation_suggestions": search_result.get("reservation_suggestions", []),
+        "action": action_result,
+    }

@@ -2,7 +2,9 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import json
 import asyncio
+from datetime import date
 from app.config import settings
+from app.database import SessionLocal
 
 router = APIRouter()
 
@@ -99,3 +101,66 @@ async def broadcast_availability_update(restaurant_id: int, available_tables: li
         "available_tables": available_tables
     }
     await manager.broadcast(message)
+
+
+# ── Live intelligence dashboard WebSocket ─────────────────────────────────────
+
+@router.websocket("/ws/dashboard/{restaurant_id}")
+async def dashboard_ws(websocket: WebSocket, restaurant_id: int):
+    """
+    Streams live intelligence dashboard data every 10 seconds.
+    Payload mirrors GET /owner/intelligence/dashboard/{restaurant_id}.
+    No auth on WS — restaurant_id scoping is the access boundary for now.
+    """
+    from app.services.intelligence.decision_engine import build_owner_dashboard
+    from app.services.ml.revenue import get_occupancy_rate
+
+    await websocket.accept()
+    try:
+        while True:
+            db = SessionLocal()
+            try:
+                dashboard = build_owner_dashboard(db, restaurant_id)
+                occupancy = get_occupancy_rate(db, restaurant_id)
+                payload = {
+                    "type": "dashboard_update",
+                    "restaurant_id": restaurant_id,
+                    "occupancy": occupancy,
+                    "live_reservations": dashboard["metrics"]["total_reservations"],
+                    "demand_level": dashboard["metrics"]["demand_level"],
+                    "fill_ratio": dashboard["metrics"]["fill_ratio"],
+                    "predicted_revenue": dashboard["predictions"]["predicted_revenue"],
+                    "waitlist_waiting": dashboard["waitlist"]["waiting"],
+                    "insights": dashboard["insights"],
+                    "hourly_demand": dashboard["predictions"]["hourly_demand"],
+                    "predicted_hourly": dashboard["predictions"]["predicted_hourly_demand"],
+                }
+            except Exception as exc:
+                payload = {"type": "error", "message": str(exc)}
+            finally:
+                db.close()
+
+            await websocket.send_json(payload)
+            await asyncio.sleep(10)
+    except WebSocketDisconnect:
+        pass
+
+
+# ── Owner real-time notification WebSocket ────────────────────────────────────
+
+@router.websocket("/ws/owner/{restaurant_id}")
+async def owner_ws(websocket: WebSocket, restaurant_id: int):
+    """
+    Persistent connection for owner real-time notifications.
+    Registered in notification_service so create_notification() can push instantly.
+    """
+    from app.services.notification_service import register_owner_ws, unregister_owner_ws
+
+    await websocket.accept()
+    register_owner_ws(restaurant_id, websocket)
+    try:
+        while True:
+            # Keep alive — client can send pings
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        unregister_owner_ws(restaurant_id, websocket)

@@ -5,33 +5,23 @@ import os
 from app.database import engine, Base
 
 # IMPORTANT: import all models
+# Import all models via __init__ (handles dependency order)
 from app.models import (
-    reservation,
-    reservation_payment,
-    restaurant_brand,
-    restaurant_image,
-    restaurant_table,
-    restaurant_tier,
-    restaurant,
-    restaurant_tag,
-    menu_category,
-    menu_item,
-    restaurant_analytics,
-    restaurant_promotion,
-    review,
-    user,
-    waitlist_entry,
-    dynamic_pricing_rule,
+    User, UserPreference, RestaurantTier, RestaurantBrand, Restaurant,
+    RestaurantImage, RestaurantTag, RestaurantAnalytics, RestaurantPromotion,
+    MenuCategory, MenuItem, RestaurantTable, Reservation, ReservationPayment,
+    Review, WaitlistEntry, DynamicPricingRule, AutomationAction, Notification,
 )
 
 Base.metadata.create_all(bind=engine)
 
 from app.database import SessionLocal
-from app.seed import seed_default_restaurant_tiers
+from app.seed import seed_default_restaurant_tiers, seed_demo_user
 
 db = SessionLocal()
 try:
     seed_default_restaurant_tiers(db)
+    seed_demo_user(db)
 finally:
     db.close()
 
@@ -54,6 +44,10 @@ from app.routes import (
     vector_routes,
     waitlist_routes,
     dynamic_pricing_routes,
+    intelligence_routes,
+    user_dashboard_routes,
+    concierge_routes,
+    owner_notification_routes,
 )
 
 app = FastAPI(title="SUFI API")
@@ -65,7 +59,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 app.include_router(auth_routes.router)
@@ -86,7 +80,31 @@ app.include_router(ws_routes.router)
 app.include_router(vector_routes.router)
 app.include_router(waitlist_routes.router)
 app.include_router(dynamic_pricing_routes.router)
+app.include_router(intelligence_routes.router)
+app.include_router(intelligence_routes._automation_router)
+app.include_router(user_dashboard_routes.router)
+app.include_router(concierge_routes.router)
+app.include_router(owner_notification_routes.router)
 
 @app.get("/")
 def root():
     return {"message": "SUFI backend running"}
+
+
+@app.on_event("startup")
+async def warm_cache():
+    """Pre-warm dashboard cache for known restaurants so first user request is instant."""
+    from app.services.intelligence.decision_engine import build_owner_dashboard
+    from app.redis_client import redis_client as _cache
+    db = SessionLocal()
+    try:
+        from app.models.restaurant import Restaurant
+        restaurant_ids = [r.id for r in db.query(Restaurant.id).limit(10).all()]
+        for rid in restaurant_ids:
+            try:
+                dashboard = build_owner_dashboard(db, rid)
+                _cache.set(f"full:{rid}:500", dashboard, expire_seconds=60)
+            except Exception:
+                pass
+    finally:
+        db.close()

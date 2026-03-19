@@ -93,14 +93,19 @@ def discover(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/trending")
-def featured_restaurants(db: Session = Depends(get_db)):
+def featured_restaurants_trending(db: Session = Depends(get_db)):
     restaurants = (
         db.query(Restaurant)
         .filter(Restaurant.is_featured == True)
         .limit(10)
         .all()
     )
-    return restaurants
+    return [
+        {"id": r.id, "name": r.name, "cuisine": r.cuisine, "city": r.city,
+         "rating": r.rating, "total_reviews": r.total_reviews,
+         "price_range": r.price_range, "address": r.address, "is_featured": r.is_featured}
+        for r in restaurants
+    ]
 
 @router.post("/register")
 def register_restaurant(
@@ -172,7 +177,12 @@ def featured_restaurants(db: Session = Depends(get_db)):
         .limit(10)
         .all()
     )
-    return restaurants
+    return [
+        {"id": r.id, "name": r.name, "cuisine": r.cuisine, "city": r.city,
+         "rating": r.rating, "total_reviews": r.total_reviews,
+         "price_range": r.price_range, "address": r.address, "is_featured": r.is_featured}
+        for r in restaurants
+    ]
 
 @router.get("/search")
 def search_restaurants_endpoint(
@@ -183,9 +193,10 @@ def search_restaurants_endpoint(
     min_rating: float = Query(None, description="Minimum rating"),
     featured_only: bool = Query(False, description="Show only featured restaurants"),
     limit: int = Query(20, description="Number of results"),
-    offset: int = Query(0, description="Results offset")
+    offset: int = Query(0, description="Results offset"),
+    db: Session = Depends(get_db),
 ):
-    """Search restaurants with MeiliSearch and filters"""
+    """Search restaurants — MeiliSearch when available, DB fallback otherwise"""
     try:
         results = search_restaurants(
             query=q,
@@ -197,7 +208,7 @@ def search_restaurants_endpoint(
             limit=limit,
             offset=offset
         )
-        
+
         hits = results.get("hits", [])
         hit_ids: list[int] = []
         for h in hits:
@@ -205,6 +216,42 @@ def search_restaurants_endpoint(
                 hit_ids.append(int(h.get("id")))
             except Exception:
                 continue
+
+        # ── DB fallback when MeiliSearch is unavailable ───────────────────────
+        if not hit_ids:
+            query_obj = db.query(Restaurant)
+            term = f"%{q}%"
+            query_obj = query_obj.filter(
+                Restaurant.name.ilike(term)
+                | Restaurant.cuisine.ilike(term)
+                | Restaurant.city.ilike(term)
+            )
+            if city:
+                query_obj = query_obj.filter(Restaurant.city.ilike(f"%{city}%"))
+            if cuisine:
+                query_obj = query_obj.filter(Restaurant.cuisine.ilike(f"%{cuisine}%"))
+            if min_rating is not None:
+                query_obj = query_obj.filter(Restaurant.rating >= min_rating)
+            if featured_only:
+                query_obj = query_obj.filter(Restaurant.is_featured == True)
+            db_results = query_obj.offset(offset).limit(limit).all()
+            fallback_hits = [
+                {
+                    "id": str(r.id), "name": r.name, "cuisine": r.cuisine,
+                    "city": r.city, "rating": r.rating or 0,
+                    "price_range": r.price_range, "is_featured": r.is_featured or False,
+                    "description": r.description or "",
+                }
+                for r in db_results
+            ]
+            return {
+                "query": q,
+                "filters": {"city": city, "cuisine": cuisine, "price_range": price_range,
+                            "min_rating": min_rating, "featured_only": featured_only},
+                "results": fallback_hits,
+                "total": len(fallback_hits),
+                "processing_time_ms": 0,
+            }
 
         sponsored = []
         organic = []
@@ -290,13 +337,19 @@ def autocomplete_restaurants(
 @router.get("/{restaurant_id}")
 def get_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
     restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
-    
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
-
-    track_profile_view(db, restaurant_id)
-    
-    return restaurant
+    try:
+        track_profile_view(db, restaurant_id)
+    except Exception:
+        pass
+    return {
+        "id": restaurant.id, "name": restaurant.name, "cuisine": restaurant.cuisine,
+        "city": restaurant.city, "address": restaurant.address, "rating": restaurant.rating,
+        "total_reviews": restaurant.total_reviews, "price_range": restaurant.price_range,
+        "is_featured": restaurant.is_featured, "description": restaurant.description,
+        "owner_id": str(restaurant.owner_id) if restaurant.owner_id else None,
+    }
 
 @router.post("/search/setup")
 def setup_search(db: Session = Depends(get_db)):

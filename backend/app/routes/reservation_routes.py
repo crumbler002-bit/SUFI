@@ -23,6 +23,7 @@ from app.services.recommendation_service import update_user_preference
 from app.services.analytics_service import track_reservation
 from app.services.promotion_service import mark_promotion_reservation
 from app.utils.redis_client import redis_client as redis_raw_client, REDIS_AVAILABLE
+from app.services.notification_service import notify_new_booking, notify_cancellation
 
 router = APIRouter(prefix="/reservations")
 
@@ -101,6 +102,9 @@ async def create_reservation(
         track_reservation(db, restaurant.id)
         mark_promotion_reservation(db, restaurant.id)
 
+        # Notify owner of new booking
+        notify_new_booking(db, restaurant.id, current_user.name, data.guests, reservation.reservation_time)
+
         # Broadcast real-time update to all connected clients
         await broadcast_reservation_update(
             restaurant_id=reservation.restaurant_id,
@@ -113,6 +117,8 @@ async def create_reservation(
 
         if REDIS_AVAILABLE and redis_raw_client:
             redis_raw_client.delete(f"recommend:{current_user.id}:20")
+            redis_raw_client.delete(f"dashboard:{data.restaurant_id}:today:500")
+            redis_raw_client.delete(f"full:{data.restaurant_id}:500")
 
         return {
             "reservation_id": reservation.id,
@@ -171,6 +177,9 @@ async def auto_create_reservation(
         track_reservation(db, restaurant.id)
         mark_promotion_reservation(db, restaurant.id)
 
+        # Notify owner of new booking
+        notify_new_booking(db, restaurant.id, current_user.name, data.guests, reservation.reservation_time)
+
         await broadcast_reservation_update(
             restaurant_id=reservation.restaurant_id,
             table_id=reservation.table_id,
@@ -181,6 +190,8 @@ async def auto_create_reservation(
 
         if REDIS_AVAILABLE and redis_raw_client:
             redis_raw_client.delete(f"recommend:{current_user.id}:20")
+            redis_raw_client.delete(f"dashboard:{data.restaurant_id}:today:500")
+            redis_raw_client.delete(f"full:{data.restaurant_id}:500")
 
         return {
             "reservation_id": reservation.id,
@@ -234,6 +245,14 @@ async def cancel_reservation(
     restaurant_id = reservation.restaurant_id
     reservation.status = "cancelled"
     db.commit()
+
+    # Invalidate dashboard cache so owner sees updated data immediately
+    from app.redis_client import redis_client as _cache
+    _cache.delete(f"dashboard:{restaurant_id}:today:500")
+    _cache.delete(f"full:{restaurant_id}:500")
+
+    # Notify owner of cancellation
+    notify_cancellation(db, restaurant_id, current_user.name, reservation.guests, reservation.reservation_time)
 
     # Trigger waitlist — someone may now get this slot
     process_waitlist(db, restaurant_id)

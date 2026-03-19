@@ -48,7 +48,7 @@ def restaurant_analytics_summary(
         raise HTTPException(status_code=404, detail="Restaurant not found")
 
     if getattr(current_user, "role", None) in ["owner", "restaurant_owner"]:
-        if restaurant.owner_id != current_user.id:
+        if str(restaurant.owner_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="Owner access required")
 
     cache_key = f"analytics:{id}"
@@ -102,7 +102,7 @@ def restaurant_analytics_timeline(
         raise HTTPException(status_code=404, detail="Restaurant not found")
 
     if getattr(current_user, "role", None) in ["owner", "restaurant_owner"]:
-        if restaurant.owner_id != current_user.id:
+        if str(restaurant.owner_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="Owner access required")
 
     cache_key = f"analytics:{id}:timeline:{days}"
@@ -159,7 +159,7 @@ def popular_hours(
         raise HTTPException(status_code=404, detail="Restaurant not found")
 
     if getattr(current_user, "role", None) in ["owner", "restaurant_owner"]:
-        if restaurant.owner_id != current_user.id:
+        if str(restaurant.owner_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="Owner access required")
 
     return get_popular_hours(db, id)

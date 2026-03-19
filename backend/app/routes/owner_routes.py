@@ -168,6 +168,28 @@ def update_restaurant_profile(
         "tags": [t.tag for t in getattr(restaurant, "tags", [])],
     }
 
+@router.put("/settings/auto-cancel/{restaurant_id}")
+def toggle_auto_cancel(
+    restaurant_id: int,
+    enabled: bool,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if getattr(current_user, "role", None) not in ["owner", "restaurant_owner"]:
+        raise HTTPException(status_code=403, detail="Owner access required")
+
+    restaurant = db.query(Restaurant).filter(
+        Restaurant.id == restaurant_id,
+        Restaurant.owner_id == current_user.id,
+    ).first()
+    if restaurant is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    restaurant.auto_cancellation_enabled = enabled
+    db.commit()
+    return {"restaurant_id": restaurant_id, "auto_cancellation_enabled": enabled}
+
+
 @router.get("/reservations")
 def owner_reservations(
     current_user = Depends(get_current_user),
