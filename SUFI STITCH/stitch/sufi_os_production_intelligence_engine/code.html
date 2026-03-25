@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI OS | Production Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error": "#ff6e84",
+                        "primary-fixed": "#9396ff",
+                        "on-surface-variant": "#adaaab",
+                        "secondary-container": "#5516be",
+                        "surface-container": "#1a191b",
+                        "on-error": "#490013",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-primary-container": "#0a0081",
+                        "surface-tint": "#a3a6ff",
+                        "secondary-fixed": "#dac9ff",
+                        "on-primary": "#0f00a4",
+                        "tertiary-dim": "#ff67ad",
+                        "primary-dim": "#6063ee",
+                        "on-secondary": "#280067",
+                        "surface": "#0e0e0f",
+                        "on-tertiary-container": "#2f0018",
+                        "surface-container-highest": "#262627",
+                        "background": "#0e0e0f",
+                        "surface-dim": "#0e0e0f",
+                        "primary-fixed-dim": "#8387ff",
+                        "on-secondary-fixed": "#40009b",
+                        "on-tertiary-fixed-variant": "#740044",
+                        "tertiary-fixed": "#ff8cbc",
+                        "surface-container-lowest": "#000000",
+                        "surface-container-low": "#131314",
+                        "on-surface": "#ffffff",
+                        "outline-variant": "#484849",
+                        "error-dim": "#d73357",
+                        "inverse-surface": "#fcf8f9",
+                        "primary": "#a3a6ff",
+                        "surface-container-high": "#201f21",
+                        "surface-bright": "#2c2c2d",
+                        "inverse-primary": "#494bd7",
+                        "on-background": "#ffffff",
+                        "secondary-dim": "#8455ef",
+                        "primary-container": "#9396ff",
+                        "tertiary": "#ff6daf",
+                        "on-tertiary-fixed": "#37001d",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "tertiary-fixed-dim": "#ff73b1",
+                        "inverse-on-surface": "#565556",
+                        "surface-variant": "#262627",
+                        "outline": "#767576",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "on-tertiary": "#4b002a",
+                        "on-error-container": "#ffb2b9",
+                        "on-secondary-fixed-variant": "#5f28c8",
+                        "tertiary-container": "#fa53a4",
+                        "secondary": "#ac8aff",
+                        "error-container": "#a70138",
+                        "on-primary-fixed": "#000000"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #0e0e0f; color: #ffffff; scroll-behavior: smooth; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .glass-panel { background: rgba(32, 31, 33, 0.6); backdrop-filter: blur(40px); border: 1px solid rgba(72, 72, 73, 0.15); }
+        .shimmer-text { background: linear-gradient(90deg, #adaaab 0%, #ffffff 50%, #adaaab 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 4s linear infinite; }
+        @keyframes shimmer { to { background-position: 200% center; } }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+        .bg-mesh { background-image: radial-gradient(at 0% 0%, rgba(163, 166, 255, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 109, 175, 0.05) 0px, transparent 50%); }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_0_rgba(163,166,255,0.06)]">
+<div class="flex justify-between items-center px-8 h-20 w-full max-w-[1920px] mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black tracking-tighter text-white uppercase font-headline">SUFI OS</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-headline font-bold tracking-tight text-[#a3a6ff] border-b-2 border-[#a3a6ff] pb-1" href="#">Ecosystem</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Intelligence</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Signals</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Vault</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="p-2 text-[#a3a6ff] hover:bg-white/5 transition-all duration-300 rounded-lg active:scale-95">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</button>
+<button class="p-2 text-[#a3a6ff] hover:bg-white/5 transition-all duration-300 rounded-lg active:scale-95">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+</button>
+<button class="p-2 text-[#a3a6ff] hover:bg-white/5 transition-all duration-300 rounded-lg active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+</button>
+</div>
+<div class="h-10 w-10 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img alt="User Intelligence Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional user with neutral lighting and a minimalist dark background for tech profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuX-PUgGUd76mFMrUKcr0ANf7KW2b6ytjpSLuLkgn_QvCwIXdoFLwj97W8ZDerKqitJaWQmIWXs3wCp537JKMsvhBBrINY4MdmVQjnNhHc-_DwLWQgFyRDG7PSqc6FUHSNssdGdr6PkoW1SQxFpgrASjS3NYUMglZZwod3l3oG1t_0A7HLO3mHnjpgaZGhviojVDnCx_je9sTREZbsqPyiw-fnG6fFeHOkPyfoL_Y90UXBnti8cqYi7P2nmCLlOaNkYKkyQjju5w"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on small, anchored on left) -->
+<aside class="hidden xl:flex h-screen w-72 fixed left-0 top-0 z-40 bg-[#0e0e0f] flex-col p-6 gap-8 border-r border-white/5">
+<div class="mt-20 space-y-2">
+<div class="flex items-center gap-3 px-4 py-3 bg-[#a3a6ff]/10 text-[#a3a6ff] rounded-xl font-bold font-headline">
+<span class="material-symbols-outlined" data-icon="grain">grain</span>
+<span>Core</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-[#adaaab] hover:bg-white/5 rounded-xl transition-transform duration-200 hover:translate-x-1 font-medium">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span>Discovery</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-[#adaaab] hover:bg-white/5 rounded-xl transition-transform duration-200 hover:translate-x-1 font-medium">
+<span class="material-symbols-outlined" data-icon="assistant_on_hub">assistant_on_hub</span>
+<span>Concierge</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-[#adaaab] hover:bg-white/5 rounded-xl transition-transform duration-200 hover:translate-x-1 font-medium">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span>Analysis</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-[#adaaab] hover:bg-white/5 rounded-xl transition-transform duration-200 hover:translate-x-1 font-medium">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span>Settings</span>
+</div>
+</div>
+<div class="mt-auto p-4 glass-panel rounded-2xl">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-2 h-2 rounded-full bg-tertiary pulse-dot"></div>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Active Signal: 104.2ms</span>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-xl hover:shadow-[0_0_15px_rgba(163,166,255,0.1)] transition-all">
+                Initialize Protocol
+            </button>
+</div>
+</aside>
+<main class="xl:pl-72 pt-20 bg-mesh min-h-screen relative overflow-hidden">
+<!-- Layer 1 & 2: Abstract Background Elements -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-1/4 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-1/4 -left-20 w-[500px] h-[500px] bg-tertiary/5 rounded-full blur-[150px]"></div>
+</div>
+<!-- Metrics Strip: Global Signal -->
+<section class="w-full px-8 py-4 bg-surface-container-lowest/50 backdrop-blur-md border-y border-white/5 flex flex-wrap justify-between items-center gap-8 z-10 relative">
+<div class="flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Live Signal</span>
+<span class="font-headline font-bold text-primary">104.2ms</span>
+<div class="w-1.5 h-1.5 rounded-full bg-primary pulse-dot"></div>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Bookings / hr</span>
+<span class="font-headline font-bold text-white tracking-widest">482</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Trend Intensity</span>
+<div class="px-3 py-1 bg-tertiary/10 rounded-full flex items-center gap-2">
+<span class="font-headline font-bold text-tertiary">0.92</span>
+<span class="material-symbols-outlined text-sm text-tertiary" data-icon="bolt">bolt</span>
+</div>
+</div>
+</section>
+<!-- Hero: Intelligence Input -->
+<section class="relative px-8 pt-24 pb-40 z-10">
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+<div class="lg:col-span-8 space-y-8">
+<h1 class="text-5xl lg:text-7xl font-headline font-extrabold tracking-tighter leading-tight">
+                        Predictive <br/><span class="text-primary-dim">Intelligence.</span>
+</h1>
+<div class="relative group">
+<input class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/30 focus:ring-primary focus:ring-2 p-8 rounded-2xl text-xl font-medium transition-all duration-500 glass-panel" placeholder="" type="text"/>
+<div class="absolute inset-y-0 left-8 flex items-center pointer-events-none">
+<span class="shimmer-text text-xl">romantic dinner with wine...</span>
+</div>
+<div class="absolute right-6 inset-y-0 flex items-center">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+<span>Initialize</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4">
+<div class="glass-panel p-6 rounded-2xl space-y-6">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-[0.2em] mb-1">Intent Vector</p>
+<h3 class="font-headline font-bold text-lg">Gourmet/Social</h3>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="analytics">analytics</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">Confidence</span>
+<span class="text-primary font-bold">98.4%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98.4%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white/5 p-3 rounded-xl">
+<p class="text-[10px] text-on-surface-variant mb-1">Signals</p>
+<p class="font-bold text-sm">1,204</p>
+</div>
+<div class="bg-white/5 p-3 rounded-xl">
+<p class="text-[10px] text-on-surface-variant mb-1">Latency</p>
+<p class="font-bold text-sm">12ms</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Discovery Grid: Ranked Logic -->
+<section class="px-8 -mt-32 pb-32 z-20 relative">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<!-- Signal Card 1 (Large) -->
+<div class="md:col-span-2 lg:row-span-2 glass-panel rounded-3xl overflow-hidden group hover:shadow-[0_0_40px_rgba(163,166,255,0.15)] transition-all duration-500">
+<div class="h-64 relative">
+<img alt="Vibrant Signal" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Cinematic close-up of a high-end cocktail with moody lighting and dark interior reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo6bZx2XOFftwb5MM5y6B9Z5AuKO_KSpW9XYNKmY380ftslCS2QaAGh_z60YFbgY16TAr9Bk6F_qD4wQ8XtKrzayypz_9vQDy6dzIzGuPJgWWrFsIelPM0kihU4RxiilQ_P6hYuXS9JRzBhsqWNxkY9Nv93Cq4Px6QJgkEdz4H8Y-HJTzDw-XOus0JuJRWx0BFby9ILNpjU9UKjxnEBuSiT3Hb-l5z-XqGoRTgyhHA1KVvNNLnD6rtBhq1wCYHhC92VB47mmZoCQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent"></div>
+<div class="absolute top-6 left-6 flex gap-2">
+<div class="px-4 py-1.5 bg-tertiary-container/90 backdrop-blur-md rounded-full text-on-tertiary-container text-xs font-bold flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-white pulse-dot"></div>
+                                    Live Demand
+                                </div>
+</div>
+</div>
+<div class="p-8 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="text-2xl font-headline font-bold">The Obsidian Room</h4>
+<span class="text-primary font-bold text-xl">99% Match</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">High correlation between your preference for vintage cellars and our recent sensory analysis of local peak performance hotspots.</p>
+<div class="pt-4 flex items-center gap-6">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container ring-2 ring-primary/20"></div>
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high"></div>
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-highest"></div>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">12 Network matches identified</span>
+</div>
+</div>
+</div>
+<!-- Signal Card 2 -->
+<div class="glass-panel p-6 rounded-3xl flex flex-col justify-between hover:bg-white/5 transition-colors group">
+<div class="space-y-4">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<h4 class="text-xl font-headline font-bold">Aris Peak</h4>
+<p class="text-sm text-on-surface-variant">Optimal lighting and acoustic levels matching your 'Focus' profile.</p>
+</div>
+<div class="mt-8 flex justify-between items-center">
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Neural Match: 94%</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="north_east">north_east</span>
+</div>
+</div>
+<!-- Signal Card 3 -->
+<div class="glass-panel p-6 rounded-3xl flex flex-col justify-between hover:bg-white/5 transition-colors group">
+<div class="space-y-4">
+<div class="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="wine_bar">wine_bar</span>
+</div>
+<h4 class="text-xl font-headline font-bold">Vintage Core</h4>
+<p class="text-sm text-on-surface-variant">System detected an 82% inventory alignment with your vault.</p>
+</div>
+<div class="mt-8 flex justify-between items-center">
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Neural Match: 88%</span>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors" data-icon="north_east">north_east</span>
+</div>
+</div>
+<!-- Signal Card 4 (Horizontal/Bento) -->
+<div class="md:col-span-2 glass-panel p-8 rounded-3xl flex flex-col md:flex-row gap-8 items-center hover:bg-white/5 transition-colors">
+<div class="w-full md:w-1/3 aspect-square rounded-2xl bg-surface-container-highest flex items-center justify-center border border-white/5">
+<img alt="Social Context" class="w-full h-full object-cover rounded-2xl opacity-80" data-alt="Sophisticated minimalist dinner table setting with a single candle and high-contrast shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt0hsPRPRfTvbliKrkCod4R95hPNp8VOcXL4Fl9EtPcecYSxdpVGvQo9SCG45_L3A9aG_1OQMR-rHInx2_vsXj6DTAqV_7hTUykhfbNLB0t047i991zQSd1_mFMj-Zr49F02nK1UVCD8-iXIvaaN1UiN1FJocX6V3wzh7YceGVax9v1urcavdcvGpSVMObtpWOqGXQiBjwXTetW5giru-C2fYZRHhkfTz2x-VZ82DY5dr-AkXYVFSKAtVuI9SCN8pZSmGqSad7Ng"/>
+</div>
+<div class="flex-1 space-y-4">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-primary uppercase tracking-[0.3em]">Discovery Logic</span>
+<div class="h-[1px] flex-1 bg-white/10"></div>
+</div>
+<h4 class="text-2xl font-headline font-bold">Collaborative Filtering</h4>
+<p class="text-on-surface-variant text-sm">Our engines analyzed 400+ nearby signals to find the exact resonance for your current social vector. System confidence is high for tonight's atmosphere.</p>
+<button class="text-primary font-bold text-sm flex items-center gap-2 hover:translate-x-1 transition-transform">
+                                Explore Logic Trace
+                                <span class="material-symbols-outlined text-sm" data-icon="keyboard_arrow_right">keyboard_arrow_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Panel: Contextual Brain -->
+<section class="px-8 pb-32 z-10 relative">
+<div class="max-w-4xl mx-auto glass-panel rounded-[2rem] overflow-hidden">
+<div class="bg-surface-container-high/50 p-6 flex justify-between items-center border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary pulse-dot"></div>
+<span class="font-headline font-bold text-sm">System Thinking...</span>
+</div>
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+</div>
+</div>
+<div class="p-8 space-y-8 min-h-[400px]">
+<div class="space-y-4 max-w-2xl">
+<p class="text-lg leading-relaxed font-medium">
+                            Synthesizing <span class="text-primary">Gourmet Vector</span> and <span class="text-secondary">Vault History</span>...
+                        </p>
+<p class="text-on-surface-variant leading-relaxed">
+                            Based on your intent for a "romantic dinner," I have identified three top-tier signals with neural scores above 95%. I am factoring in real-time noise levels and waitlist availability...
+                        </p>
+</div>
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-1 bg-white/5 p-4 rounded-2xl hover:bg-primary/5 hover:scale-[1.02] transition-all cursor-pointer border border-transparent hover:border-primary/20">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Resto 1" class="w-10 h-10 rounded-lg object-cover" data-alt="Close-up of elegant seafood dish with micro-greens in a dark restaurant environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbVViH_37txA4w6YwwbpSGQvNoFNmjscfZ5xuESrFo3i7OPj3jlAqfmUNth0n70KBr6Esm3HixQdSY0_sqoUO2IJa5OVt3HmvbjI87SZJfidA-xC2f-cUxWsRzb19AQrsJrsJjislZEoRj2pE7svQulU12LQQ0gg_oH7Sc8uBSuG_oqiskMQWgiJU1FJHtPe19jd7mmcIjPH5-NBMNe7tIdX9K1lCGe1gGMndcJzKO3JBcWiCePIrKP0CB6O_5GEznZY64atjr8A"/>
+<span class="font-bold">Lumière Vault</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Live Noise: 42dB | Wait: 12m</p>
+</div>
+<div class="flex-1 bg-white/5 p-4 rounded-2xl hover:bg-primary/5 hover:scale-[1.02] transition-all cursor-pointer border border-transparent hover:border-primary/20">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Resto 2" class="w-10 h-10 rounded-lg object-cover" data-alt="Steaming bowl of gourmet ramen in a minimalist modern kitchen setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB_d1Ote2niFN0vvbIKXC9F2L3_343IXR3G4khAAzVFmTDaljmfb0DyxWjfjxBh7vW-BOVRaut9p7pTjVrmjzsJxeWkqcFfRczxHr-_QDQsMJzscrxZT-OHpBiqpbjja5sKaktiqHKEXtZ1igRaxZ1B7BOTwbb2eXc1xEuhCDfnV1-xbXlgqlSftduxuD5v5aXuj_2VCCTx42Zfxr0_p5ovMs34dPk9BL2Hs8h-cU_yJ6a_bSXCNf3QCOLcDytwr-XVOmPq9u1-w"/>
+<span class="font-bold">Umami Node</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Live Noise: 65dB | Wait: 0m</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="text-xs px-3 py-1 bg-surface-container-highest rounded-full border border-white/5 text-on-surface-variant">View Menu Trace</span>
+<span class="text-xs px-3 py-1 bg-surface-container-highest rounded-full border border-white/5 text-on-surface-variant">Match Logic</span>
+<span class="text-xs px-3 py-1 bg-surface-container-highest rounded-full border border-white/5 text-on-surface-variant">Initialize Booking</span>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA: System Integration -->
+<section class="px-8 pb-40 z-10 relative">
+<div class="max-w-4xl mx-auto text-center space-y-12">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest">
+                    Production Ready
+                </div>
+<h2 class="text-4xl lg:text-6xl font-headline font-extrabold tracking-tight">
+                    Start using <span class="text-primary-dim">SUFI OS</span>
+</h2>
+<div class="flex flex-col sm:flex-row justify-center gap-6">
+<button class="px-12 py-5 bg-primary text-on-primary font-black rounded-2xl hover:scale-105 transition-all shadow-[0_20px_40px_rgba(163,166,255,0.2)]">
+                        Deploy Protocol
+                    </button>
+<button class="px-12 py-5 glass-panel text-white font-bold rounded-2xl hover:bg-white/10 transition-all">
+                        Documentation
+                    </button>
+</div>
+</div>
+</section>
+<footer class="px-8 py-12 border-t border-white/5 z-10 relative">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-on-surface-variant text-sm">
+<div class="flex items-center gap-2">
+<span class="font-headline font-black text-white">SUFI OS</span>
+<span>© 2024 Neural Systems Corp.</span>
+</div>
+<div class="flex gap-8 font-medium">
+<a class="hover:text-primary transition-colors" href="#">Privacy Core</a>
+<a class="hover:text-primary transition-colors" href="#">System Status</a>
+<a class="hover:text-primary transition-colors" href="#">API Keys</a>
+<a class="hover:text-primary transition-colors" href="#">Developer Vault</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

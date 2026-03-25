@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI | Living Food Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --primary: #a3a6ff;
+            --tertiary: #ff6daf;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(32, 31, 33, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .intelligence-pulse {
+            box-shadow: 0 0 0 0 rgba(163, 166, 255, 0.4);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(163, 166, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(163, 166, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(163, 166, 255, 0); }
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #a3a6ff, #ff6daf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(163, 166, 255, 0.1);
+        }
+        .parallax-bg {
+            transition: transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating { animation: float 4s ease-in-out infinite; }
+        .delay-1 { animation-delay: 1s; }
+        .delay-2 { animation-delay: 2s; }
+
+        .hidden-reason {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover .hidden-reason {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Particle Simulation */
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-bright": "#2c2c2d",
+                "outline": "#767576",
+                "tertiary-dim": "#ff67ad",
+                "secondary-dim": "#8455ef",
+                "on-secondary-fixed": "#40009b",
+                "on-secondary-fixed-variant": "#5f28c8",
+                "on-tertiary-fixed": "#37001d",
+                "on-primary": "#0f00a4",
+                "outline-variant": "#484849",
+                "primary": "#a3a6ff",
+                "secondary-fixed-dim": "#ceb9ff",
+                "surface-container-lowest": "#000000",
+                "primary-container": "#9396ff",
+                "error-dim": "#d73357",
+                "on-primary-fixed": "#000000",
+                "on-tertiary": "#4b002a",
+                "on-tertiary-container": "#2f0018",
+                "tertiary-container": "#fa53a4",
+                "tertiary-fixed": "#ff8cbc",
+                "inverse-on-surface": "#565556",
+                "on-secondary": "#280067",
+                "tertiary-fixed-dim": "#ff73b1",
+                "inverse-surface": "#fcf8f9",
+                "secondary": "#ac8aff",
+                "on-background": "#ffffff",
+                "surface": "#0e0e0f",
+                "inverse-primary": "#494bd7",
+                "on-secondary-container": "#d9c8ff",
+                "on-primary-fixed-variant": "#0e009d",
+                "primary-dim": "#6063ee",
+                "surface-container-low": "#131314",
+                "primary-fixed-dim": "#8387ff",
+                "surface-container-high": "#201f21",
+                "on-error-container": "#ffb2b9",
+                "primary-fixed": "#9396ff",
+                "surface-container": "#1a191b",
+                "background": "#0e0e0f",
+                "on-surface-variant": "#adaaab",
+                "on-tertiary-fixed-variant": "#740044",
+                "error": "#ff6e84",
+                "tertiary": "#ff6daf",
+                "secondary-container": "#5516be",
+                "on-primary-container": "#0a0081",
+                "surface-container-highest": "#262627",
+                "surface-variant": "#262627",
+                "on-surface": "#ffffff",
+                "secondary-fixed": "#dac9ff",
+                "error-container": "#a70138",
+                "surface-dim": "#0e0e0f",
+                "on-error": "#490013",
+                "surface-tint": "#a3a6ff"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "3xl": "2rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 overflow-x-hidden">
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/5">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black text-white tracking-tighter font-headline cursor-pointer hover:opacity-80 transition-opacity">SUFI</span>
+<div class="hidden md:flex gap-8">
+<a class="text-[#a3a6ff] border-b-2 border-[#a3a6ff] pb-1 font-headline font-bold tracking-tight" href="#">Explore</a>
+<a class="text-[#adaaab] hover:text-white transition-all font-headline font-bold tracking-tight" href="#">Intelligence</a>
+<a class="text-[#adaaab] hover:text-white transition-all font-headline font-bold tracking-tight" href="#">Concierge</a>
+<a class="text-[#adaaab] hover:text-white transition-all font-headline font-bold tracking-tight" href="#">History</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-white/5 hover:border-white/20 transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2 group-hover:text-primary">search</span>
+<span class="text-on-surface-variant text-sm">Smart Search...</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all cursor-pointer">notifications_active</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all cursor-pointer">account_circle</span>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- HERO: Living Predictive Simulation -->
+<section class="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden" id="hero-section">
+<canvas id="hero-canvas"></canvas>
+<div class="absolute inset-0 z-0 parallax-bg" id="hero-parallax">
+<div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 blur-[140px] rounded-full animate-pulse"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-tertiary/10 blur-[140px] rounded-full animate-pulse [animation-delay:2s]"></div>
+</div>
+<div class="relative z-10 text-center max-w-4xl mx-auto">
+<h1 class="font-headline text-6xl md:text-8xl font-extrabold tracking-tighter mb-8 transition-all duration-700">
+                Predictive <span class="text-gradient">Dining</span> Logic.
+            </h1>
+<div class="glass-panel p-2 md:p-4 rounded-3xl shadow-2xl max-w-3xl mx-auto mb-12 overflow-hidden transform hover:scale-[1.01] transition-transform duration-500">
+<div class="flex items-center bg-surface-container-lowest p-6 rounded-2xl mb-4 relative overflow-hidden">
+<div class="absolute inset-0 shimmer opacity-10"></div>
+<span class="text-primary mr-4 material-symbols-outlined" data-weight="fill">auto_awesome</span>
+<div class="text-left">
+<p class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] font-black mb-1">User Intent</p>
+<p class="text-2xl font-medium tracking-tight transition-all duration-500 opacity-100" id="hero-query">"romantic dinner with wine"</p>
+</div>
+<div class="ml-auto flex gap-1.5">
+<div class="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+<div class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+<div class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+</div>
+</div>
+<!-- FLIP Shuffling Cards -->
+<div class="relative h-80 grid grid-cols-3 gap-6 px-4 py-8" id="hero-card-grid">
+<!-- Left Card -->
+<div class="bg-surface-container/40 p-5 rounded-2xl border border-white/5 opacity-30 transform translate-y-12 transition-all duration-1000 scale-90" id="hero-card-left">
+<div class="w-full h-32 bg-surface-container-high rounded-xl mb-4"></div>
+<div class="h-3 w-3/4 bg-white/10 rounded"></div>
+</div>
+<!-- Center (Winner) -->
+<div class="bg-surface-container-highest p-5 rounded-3xl border border-primary/40 shadow-2xl transform -translate-y-4 transition-all duration-1000 z-20 relative overflow-hidden group" id="hero-card-center">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative w-full h-40 rounded-2xl mb-4 overflow-hidden">
+<img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[2s]" id="hero-card-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6zRNLmJGZDVLmivWRG9rPYCpm8NLfUzlptwL8bqfUnf8GFgU-XoBFWfGd-jql4Ky7q9jrGq7xx6m2glbmQMb81AQ4eVJl12JPmWDxmw9uXbGKARwSwrlj7emtnzWCCWs7TCkg0z4my3JLZuCM2wV4D4yfphyHKC9Ea7yz_C8MMo2n-Fr8ep5JXs9ljJ7_YyMTnbf3cHcotMyYdQyxMZ2hwnlCvfpVb-JWH5BQFDMD_LLG7cPSkvga8GjWc-y4ndllvsooiaUlYg"/>
+<div class="absolute top-3 right-3 bg-primary text-on-primary text-[10px] font-black px-3 py-1.5 rounded-full intelligence-pulse">98% MATCH</div>
+</div>
+<div class="h-4 w-1/2 bg-primary/30 rounded-full mb-3"></div>
+<div class="flex gap-2">
+<span class="bg-secondary/20 text-secondary text-[10px] px-3 py-1 rounded-full border border-secondary/20 font-bold">Intimate</span>
+<span class="bg-tertiary/20 text-tertiary text-[10px] px-3 py-1 rounded-full border border-tertiary/20 font-bold">Curated</span>
+</div>
+</div>
+<!-- Right Card -->
+<div class="bg-surface-container/40 p-5 rounded-2xl border border-white/5 opacity-30 transform translate-y-12 transition-all duration-1000 scale-90" id="hero-card-right">
+<div class="w-full h-32 bg-surface-container-high rounded-xl mb-4"></div>
+<div class="h-3 w-1/2 bg-white/10 rounded"></div>
+</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-xl max-w-xl mx-auto mb-10 leading-relaxed font-medium">
+                SUFI is an intelligence layer that anticipates your palate before you even type. Evolution in real-time.
+            </p>
+</div>
+</section>
+<!-- DISCOVERY: The Personalization Drift -->
+<section class="py-32 px-8 max-w-[1440px] mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+<div class="max-w-xl">
+<div class="flex items-center gap-3 mb-4">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-tertiary font-black tracking-[0.25em] text-[10px] uppercase">Personalization Drift</span>
+</div>
+<h2 class="font-headline text-5xl font-bold tracking-tight">The Neural Feed.</h2>
+<p class="text-on-surface-variant mt-4">Watch as the system re-ranks content based on micro-interactions.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high hover:bg-surface-container-highest px-8 py-4 rounded-2xl transition-all border border-white/5 flex items-center gap-2 group active:scale-95">
+<span class="material-symbols-outlined text-sm group-hover:rotate-180 transition-transform">tune</span>
+<span class="font-bold">Palate Tuner</span>
+</button>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-2xl font-black shadow-[0_10px_30px_rgba(163,166,255,0.3)] hover:translate-y-[-4px] hover:shadow-[0_20px_40px_rgba(163,166,255,0.4)] transition-all active:scale-95">
+                    Sync Identity
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-8 h-auto md:h-[650px]" id="discovery-grid">
+<!-- Main Card -->
+<div class="md:col-span-2 md:row-span-2 glass-panel rounded-3xl overflow-hidden relative group card-hover cursor-pointer transition-all duration-700">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[3s]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4bytAQTA0qB_Y_KkD59Jpqva7EbwxT-zScj2EQw55rCX4EQpFyfiPAjPLT2Z7HLCYUKYuumguonkLoloxDLAmAx2ZpLNCb84-R29tvpKblSZiglmGH3_c5MaOmATOMFtPwXcvItBGU-GQjZZcGtFuJVhTtWiK_cTpzKn6T8bVJgMpP42R5Q2Wa3tga3neBzozQ7PF6-lAHhsPcbK-oTGl_JwAZEGHSU2s1bdJIwc1onp7RqZsF5v5NJtDqY_qDBJcDer0NWVchg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0e0e0f] via-[#0e0e0f]/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full">
+<div class="hidden-reason bg-primary/20 backdrop-blur-md border border-primary/30 px-4 py-2 rounded-xl text-primary text-xs font-bold mb-6 inline-block">
+                        Recommended because you explored Umami-rich menus
+                    </div>
+<div class="flex items-center gap-3 mb-4">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+<span class="text-[10px] font-black tracking-widest text-on-surface uppercase opacity-70">Top Selection</span>
+</div>
+<h3 class="font-headline text-4xl font-extrabold mb-3">The Omakase Drift</h3>
+<p class="text-on-surface-variant max-w-sm font-medium leading-relaxed">Dynamic pacing calculated from your last 12 sessions.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="md:col-span-2 glass-panel rounded-3xl p-8 flex flex-col justify-between card-hover cursor-pointer transition-all duration-700">
+<div class="flex justify-between items-start">
+<div class="p-4 bg-secondary-container/30 rounded-2xl border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-2xl">restaurant_menu</span>
+</div>
+<div class="text-right">
+<span class="text-on-surface-variant text-xs font-black uppercase tracking-widest">Prediction</span>
+<p class="text-primary font-bold">7:00 PM Arrival</p>
+</div>
+</div>
+<div>
+<div class="hidden-reason text-secondary text-xs font-bold mb-3">Matches your preference for 90+ alcohol accuracy</div>
+<h4 class="text-2xl font-bold mb-2">Modern Parisian Bistro</h4>
+<p class="text-on-surface-variant text-sm font-medium">94% Pairing Accuracy Identified.</p>
+</div>
+<div class="flex items-center gap-4 mt-6">
+<div class="flex -space-x-4">
+<img class="w-12 h-12 rounded-full border-4 border-surface object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAhU2p_6or8vuTusjkDMTwX8PsGlo6QpBOd2nALjqoFwv1dCygNsPrLVTdusiCyL1Z87UN-mmqetHjmLYrpKssJrOGro9o3YiqSEDtNEc6ToXPjzp6NYc9da9SLkC1rPWZbJaUdfPSILC_C6vBd__VlX1Zferki168zhRpsRE5T5_PaRFO4cTgeqKEKcVDDfAS8F-LxoI4JQy90yExBTh_1oq6sQEOMnNgwY23_mXwbbDDYFUgmhgEr9tTPj15kiZZhEH8EeZcBQ"/>
+<img class="w-12 h-12 rounded-full border-4 border-surface object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASCrcyRrdwBGPOYc2_1_WDdoQcS0-5xYpxcYtDltNw0XACy5HG4PTAi9YrP6fy6Ykyh1ONugVRNu4lMmXwfaL3CgluSC8LGRyV1dPtwbowee-47ClDVxIEDNvVjH6aV_LPT3lxtX3tJFb9KQ_KCWgaRYKdZDlJ7-cRvyhdCzgAmW1hmZEgHAs8jkpjn4MzA7S_x5vkwDem23zZmtdCuAWIfFerJbHBi0UiIeIUZZ6uaOnkP6THj7V6XEPJ6o16MrIp4xvBM8P3Gg"/>
+<div class="w-12 h-12 rounded-full border-4 border-surface bg-primary/20 text-primary text-xs font-black flex items-center justify-center">+14</div>
+</div>
+<span class="text-on-surface-variant text-xs font-bold">In-network visitors</span>
+</div>
+</div>
+<!-- Small Bento 1 -->
+<div class="glass-panel rounded-3xl p-8 relative overflow-hidden card-hover cursor-pointer transition-all duration-700 flex flex-col justify-center">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/20 blur-[60px]"></div>
+<span class="material-symbols-outlined text-tertiary text-4xl mb-4">auto_graph</span>
+<h4 class="font-bold text-lg mb-1">Palate Expansion</h4>
+<p class="text-3xl font-black text-white">+12.4%</p>
+<p class="text-on-surface-variant text-[10px] uppercase font-black tracking-widest mt-2">Week-over-week</p>
+</div>
+<!-- Small Bento 2 -->
+<div class="bg-primary/10 rounded-3xl border border-primary/20 p-8 flex flex-col items-center justify-center text-center card-hover cursor-pointer transition-all duration-700 group">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">smart_toy</span>
+</div>
+<p class="font-black text-primary tracking-tight">Concierge<br/>Active Pulse</p>
+</div>
+</div>
+</section>
+<!-- AI CONCIERGE: Thinking Mode -->
+<section class="py-32 bg-surface-container-low/50">
+<div class="max-w-5xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="font-headline text-5xl font-bold mb-4 tracking-tight">Personal Concierge.</h2>
+<p class="text-on-surface-variant text-lg">Real-time intelligence streaming into coordinated action.</p>
+</div>
+<div class="glass-panel rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl transition-all duration-500 hover:border-primary/20" id="concierge-container">
+<div class="p-5 bg-surface-container-high/50 border-b border-white/5 flex items-center gap-3">
+<div class="flex gap-2">
+<div class="w-3 h-3 bg-red-500/50 rounded-full"></div>
+<div class="w-3 h-3 bg-yellow-500/50 rounded-full"></div>
+<div class="w-3 h-3 bg-green-500/50 rounded-full"></div>
+</div>
+<span class="ml-4 text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase">Neural_Concierge_v4.8</span>
+</div>
+<div class="p-10 space-y-10 min-h-[500px]" id="chat-thread">
+<!-- User Msg -->
+<div class="flex justify-end animate-in fade-in slide-in-from-right duration-700">
+<div class="bg-surface-container-highest/80 px-8 py-5 rounded-[2rem] rounded-tr-none max-w-md border border-white/10 shadow-lg">
+<p class="text-on-surface font-medium leading-relaxed">Find me something quiet for tonight, 8pm, for two people. Preferably Italian.</p>
+</div>
+</div>
+<!-- AI Container -->
+<div class="flex gap-6 opacity-0" id="ai-response-container">
+<div class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shrink-0 intelligence-pulse shadow-[0_0_20px_rgba(163,166,255,0.4)]">
+<span class="material-symbols-outlined text-on-primary text-2xl font-black">auto_awesome</span>
+</div>
+<div class="space-y-8 flex-1">
+<div class="bg-surface-container-low px-8 py-6 rounded-[2rem] rounded-tl-none border border-white/10 shadow-xl max-w-2xl">
+<p class="text-on-surface leading-relaxed text-lg min-h-[1.5em]" id="streaming-text"></p>
+</div>
+<!-- Sequential Card Entry -->
+<div class="glass-panel border border-primary/40 rounded-[2rem] overflow-hidden flex flex-col md:flex-row max-w-xl shadow-2xl opacity-0 transform translate-y-8 transition-all duration-1000" id="ai-recommendation-card">
+<div class="w-full md:w-48 h-48 shrink-0 relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTrKGmolpstQkZ3Os8iCsp7LWEx0YvUbj7noEjh87t4gTlwanNM4H8sYxVylJ9dCUI1FasRoB7jOJl4W4fBVkTdxXMnDSy_WgmpbKWMHDpzWj1OkJeoY4YZTRQ_LUr7_RQ1CfhJQtyJs9oDktqTdpZlW9d1rxSGrhP5K3_I4tIhyLVxN-Co6WpqGiUDMzEn6oJELhPD_58bvTyHpjJ3uZ2wIXY1UP1fx19JHvdHQOgleogWu1vNry2j9MdrKkjUia4_dUUXfn8aQ"/>
+<div class="absolute inset-0 shimmer opacity-20"></div>
+</div>
+<div class="p-8 flex flex-col justify-between flex-1 bg-surface-container/30">
+<div>
+<h5 class="font-extrabold text-xl mb-1">L'Artusi Secret Garden</h5>
+<p class="text-primary text-xs font-black uppercase tracking-widest mb-4">Prime Recommendation</p>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-sm">schedule</span> 8:15 PM slot available
+                                        </div>
+</div>
+<button class="w-full mt-6 bg-primary text-on-primary py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all opacity-0" id="reserve-btn">
+<span class="material-symbols-outlined text-sm">event_available</span> Reserve Access
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-8 bg-surface-container-highest/30 flex items-center gap-4">
+<div class="flex-1 bg-surface-container-lowest border border-white/10 rounded-full px-8 py-4 text-on-surface-variant flex items-center justify-between group focus-within:border-primary/50 transition-all">
+<span class="font-medium opacity-50">Ask your concierge...</span>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">mic</span>
+<div class="w-[1px] h-6 bg-white/10"></div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-white transition-colors">attach_file</span>
+</div>
+</div>
+<button class="bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-primary/20 active:scale-90 transition-all">
+<span class="material-symbols-outlined font-black">send</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- NEW SECTION: Intelligence Layer -->
+<section class="py-40 px-8 relative overflow-hidden bg-black">
+<div class="absolute inset-0 opacity-20">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 100 C 20 0, 50 0, 100 100" fill="none" stroke="url(#gradient)" stroke-width="0.1">
+<animate attributename="d" dur="10s" repeatcount="indefinite" values="M0 100 C 20 0, 50 0, 100 100; M0 100 C 50 100, 80 0, 100 100; M0 100 C 20 0, 50 0, 100 100"></animate>
+</path>
+<defs>
+<lineargradient id="gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#a3a6ff"></stop>
+<stop offset="100%" stop-color="#ff6daf"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+<div class="max-w-6xl mx-auto relative z-10">
+<div class="grid lg:grid-cols-2 gap-20 items-center">
+<div>
+<span class="text-primary font-black tracking-[0.3em] text-[10px] uppercase mb-6 block">The Neural Engine</span>
+<h2 class="font-headline text-6xl font-extrabold tracking-tighter mb-8 leading-tight">
+                        The Intelligence <br/><span class="text-gradient">Layer.</span>
+</h2>
+<p class="text-on-surface-variant text-xl leading-relaxed mb-10 font-medium max-w-lg">
+                        Every interaction sharpens the system. SUFI learns from every choice, creating a multidimensional neural map of your evolving preferences.
+                    </p>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<p class="text-4xl font-black mb-2">40k+</p>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Data Nodes Linked</p>
+</div>
+<div>
+<p class="text-4xl font-black text-tertiary">0.2ms</p>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Inference Latency</p>
+</div>
+</div>
+</div>
+<!-- Interactive Network Visual -->
+<div class="relative h-[500px] glass-panel rounded-[3rem] border-white/5 overflow-hidden flex items-center justify-center group">
+<canvas class="w-full h-full" id="network-canvas"></canvas>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+<div class="absolute bottom-10 text-center w-full">
+<span class="text-[10px] font-black uppercase tracking-[0.4em] text-primary animate-pulse">Live Signal Processing</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- OWNER SYSTEM: Real-Time Pulse -->
+<section class="py-32 px-8 max-w-[1440px] mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+<div class="lg:col-span-4 space-y-10">
+<div>
+<span class="text-secondary font-black tracking-[0.3em] text-[10px] uppercase mb-4 block">Merchant Intelligence</span>
+<h2 class="font-headline text-5xl font-extrabold tracking-tight">System Status: <span class="text-green-400">Live</span></h2>
+<p class="text-on-surface-variant mt-4 font-medium">Real-time operation management at scale.</p>
+</div>
+<!-- Animated Booking List -->
+<div class="space-y-4" id="booking-list">
+<!-- Initial Item -->
+<div class="bg-surface-container-low p-6 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-primary/30 transition-all cursor-pointer">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-primary shadow-[0_0_15px_rgba(163,166,255,0.6)]"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Priority Booking</span>
+<span class="text-[10px] text-primary bg-primary/10 px-3 py-1 rounded-full font-black border border-primary/20">Now</span>
+</div>
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-surface-container-high border border-white/10 overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBufGuqrRKgrWamyojhqFUlovAklx4yDtC_aXdZoCoV6jOAS0jZp5HuB9CXbVVin004ikpNHWoyUKeBxOsEYGjaWBv0_qZFZGv7lHzM2c04YXvVh4HTIOgeiHsLyn1Jgm213B8pK7af8UlW2WfeGCbo2ptjir2NyGdT24KTy5qAc-mWGyahl_Vh3B2-hR0-UiND_8qUD6avwwG14QXGLcyrOb3P8syPiprTAtsSHG0IqrDc3t0KpICUooZ7T_j1I3i6jieBr9Xedw"/>
+</div>
+<div>
+<h4 class="font-extrabold text-xl">Marcus Aurelius</h4>
+<p class="text-on-surface-variant text-sm font-medium">Table 4 • 2 Guests • 8:30 PM</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="bg-surface-container-low p-8 rounded-[2rem] border border-white/5 hover:border-white/20 transition-all">
+<p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-3">Efficiency</p>
+<p class="text-4xl font-black tabular-nums" id="efficiency-val">98.2%</p>
+</div>
+<div class="bg-surface-container-low p-8 rounded-[2rem] border border-white/5 hover:border-white/20 transition-all">
+<p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-3">Revenue Growth</p>
+<p class="text-4xl font-black text-tertiary tabular-nums" id="growth-val">+24.0%</p>
+</div>
+</div>
+</div>
+<div class="lg:col-span-8">
+<div class="glass-panel p-10 rounded-[3.5rem] border border-white/10 h-full relative overflow-hidden group">
+<div class="flex items-center justify-between mb-16 relative z-10">
+<div>
+<h3 class="font-black text-2xl tracking-tight">Predictive Revenue Engine</h3>
+<p class="text-on-surface-variant text-sm mt-1">Live forecasting for the next 30 days.</p>
+</div>
+<div class="flex bg-surface-container-low p-1.5 rounded-2xl border border-white/5">
+<button class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/5">7 Days</button>
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">30 Days</button>
+</div>
+</div>
+<!-- Animated Revenue Graph -->
+<div class="relative h-80 flex items-end gap-3 px-2 group" id="revenue-graph">
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[40%] hover:bg-primary/40 transition-all cursor-pointer relative group/bar">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-xs font-black bg-surface-container-highest px-3 py-1.5 rounded-lg border border-white/10">$12,400</div>
+</div>
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[55%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[45%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[70%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[65%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-3xl h-[85%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary rounded-t-3xl h-[92%] hover:brightness-110 transition-all cursor-pointer shadow-[0_-20px_40px_rgba(163,166,255,0.3)] relative animate-pulse-slow">
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 text-primary text-sm font-black">$38,210</div>
+</div>
+</div>
+<div class="flex justify-between mt-8 px-4 relative z-10">
+<span class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.3em]">Week 01</span>
+<span class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.3em]">Week 02</span>
+<span class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.3em]">Week 03</span>
+<span class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.3em]">Week 04</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="w-full py-24 bg-surface border-t border-white/5 mt-32">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full gap-12 max-w-[1920px] mx-auto">
+<div class="flex flex-col gap-4 items-center md:items-start">
+<span class="text-3xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<p class="font-label text-[10px] uppercase tracking-[0.4em] text-[#adaaab] font-black">© 2024 SUFI Intelligence. Systems Adaptive.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-10">
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-primary transition-colors font-black" href="#">Connectivity</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-primary transition-colors font-black" href="#">Intelligence API</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-primary transition-colors font-black" href="#">Network Privacy</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-primary transition-colors font-black" href="#">System Status</a>
+</div>
+</div>
+</footer>
+<script>
+    // 1. HERO CYCLE & FLIP ANIMATION
+    const queries = [
+        { text: '"romantic dinner with wine"', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC6zRNLmJGZDVLmivWRG9rPYCpm8NLfUzlptwL8bqfUnf8GFgU-XoBFWfGd-jql4Ky7q9jrGq7xx6m2glbmQMb81AQ4eVJl12JPmWDxmw9uXbGKARwSwrlj7emtnzWCCWs7TCkg0z4my3JLZuCM2wV4D4yfphyHKC9Ea7yz_C8MMo2n-Fr8ep5JXs9ljJ7_YyMTnbf3cHcotMyYdQyxMZ2hwnlCvfpVb-JWH5BQFDMD_LLG7cPSkvga8GjWc-y4ndllvsooiaUlYg' },
+        { text: '"high protein post-gym lunch"', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4bytAQTA0qB_Y_KkD59Jpqva7EbwxT-zScj2EQw55rCX4EQpFyfiPAjPLT2Z7HLCYUKYuumguonkLoloxDLAmAx2ZpLNCb84-R29tvpKblSZiglmGH3_c5MaOmATOMFtPwXcvItBGU-GQjZZcGtFuJVhTtWiK_cTpzKn6T8bVJgMpP42R5Q2Wa3tga3neBzozQ7PF6-lAHhsPcbK-oTGl_JwAZEGHSU2s1bdJIwc1onp7RqZsF5v5NJtDqY_qDBJcDer0NWVchg' },
+        { text: '"minimalist brunch for two"', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCTrKGmolpstQkZ3Os8iCsp7LWEx0YvUbj7noEjh87t4gTlwanNM4H8sYxVylJ9dCUI1FasRoB7jOJl4W4fBVkTdxXMnDSy_WgmpbKWMHDpzWj1OkJeoY4YZTRQ_LUr7_RQ1CfhJQtyJs9oDktqTdpZlW9d1rxSGrhP5K3_I4tIhyLVxN-Co6WpqGiUDMzEn6oJELhPD_58bvTyHpjJ3uZ2wIXY1UP1fx19JHvdHQOgleogWu1vNry2j9MdrKkjUia4_dUUXfn8aQ' }
+    ];
+    let queryIdx = 0;
+    
+    function cycleHero() {
+        const textEl = document.getElementById('hero-query');
+        const imgEl = document.getElementById('hero-card-img');
+        const centerCard = document.getElementById('hero-card-center');
+        const leftCard = document.getElementById('hero-card-left');
+        const rightCard = document.getElementById('hero-card-right');
+
+        queryIdx = (queryIdx + 1) % queries.length;
+
+        // Visual "Reshuffle"
+        [leftCard, centerCard, rightCard].forEach(c => {
+            c.style.opacity = '0';
+            c.style.transform = 'translateY(40px) scale(0.9)';
+        });
+        textEl.style.opacity = '0';
+
+        setTimeout(() => {
+            textEl.innerText = queries[queryIdx].text;
+            imgEl.src = queries[queryIdx].img;
+            
+            textEl.style.opacity = '1';
+            
+            // Re-render cards
+            setTimeout(() => {
+                centerCard.style.opacity = '1';
+                centerCard.style.transform = 'translateY(-16px) scale(1)';
+                
+                setTimeout(() => {
+                    leftCard.style.opacity = '0.3';
+                    leftCard.style.transform = 'translateY(48px) scale(0.9)';
+                    rightCard.style.opacity = '0.3';
+                    rightCard.style.transform = 'translateY(48px) scale(0.9)';
+                }, 200);
+            }, 300);
+        }, 600);
+    }
+    setInterval(cycleHero, 5000);
+
+    // 2. PARALLAX & PARTICLES
+    document.addEventListener('mousemove', (e) => {
+        const bg = document.getElementById('hero-parallax');
+        const x = (e.clientX - window.innerWidth / 2) / 50;
+        const y = (e.clientY - window.innerHeight / 2) / 50;
+        bg.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    // Particle Canvas
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2;
+            this.speedX = Math.random() * 0.5 - 0.25;
+            this.speedY = Math.random() * 0.5 - 0.25;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.x < 0) this.x = canvas.width;
+            if (this.y > canvas.height) this.y = 0;
+            if (this.y < 0) this.y = canvas.height;
+        }
+        draw() {
+            ctx.fillStyle = '#a3a6ff';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    for(let i=0; i<80; i++) particles.push(new Particle());
+    function animateParticles() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // 3. CONCIERGE STREAMING
+    const fullText = "Analyzing local noise profiles and historical matching... I've identified L'Artusi Secret Garden as your best match. It has a noise level of 42dB tonight, and they just opened a slot at 8:15 PM.";
+    let charIdx = 0;
+    const streamEl = document.getElementById('streaming-text');
+    const aiContainer = document.getElementById('ai-response-container');
+    const recCard = document.getElementById('ai-recommendation-card');
+    const resBtn = document.getElementById('reserve-btn');
+
+    function streamResponse() {
+        if (charIdx < fullText.length) {
+            streamEl.textContent += fullText[charIdx];
+            charIdx++;
+            setTimeout(streamResponse, 20);
+        } else {
+            // Sequential Reveal
+            setTimeout(() => {
+                recCard.style.opacity = '1';
+                recCard.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    resBtn.style.opacity = '1';
+                }, 800);
+            }, 500);
+        }
+    }
+
+    // Trigger on scroll into view
+    const observer = new IntersectionObserver((entries) => {
+        if(entries[0].isIntersecting && charIdx === 0) {
+            aiContainer.style.opacity = '1';
+            aiContainer.classList.add('animate-in', 'fade-in', 'slide-in-from-left', 'duration-700');
+            setTimeout(streamResponse, 1000);
+        }
+    }, { threshold: 0.5 });
+    observer.observe(document.getElementById('concierge-container'));
+
+    // 4. OWNER SYSTEM UPDATES
+    setInterval(() => {
+        const list = document.getElementById('booking-list');
+        const newItem = list.children[0].cloneNode(true);
+        newItem.style.opacity = '0';
+        newItem.style.transform = 'translateX(-20px)';
+        list.prepend(newItem);
+        
+        setTimeout(() => {
+            newItem.style.opacity = '1';
+            newItem.style.transform = 'translateX(0)';
+            if(list.children.length > 3) list.removeChild(list.lastElementChild);
+        }, 50);
+
+        // Tick numbers
+        const eff = document.getElementById('efficiency-val');
+        eff.innerText = (98 + Math.random() * 1.5).toFixed(1) + '%';
+        const grw = document.getElementById('growth-val');
+        grw.innerText = '+' + (23 + Math.random() * 2).toFixed(1) + '%';
+    }, 4000);
+
+    // 5. NETWORK VISUAL (Simple canvas drawing)
+    const netCanvas = document.getElementById('network-canvas');
+    const nctx = netCanvas.getContext('2d');
+    function drawNetwork() {
+        const w = netCanvas.width = netCanvas.offsetWidth;
+        const h = netCanvas.height = netCanvas.offsetHeight;
+        nctx.strokeStyle = 'rgba(163, 166, 255, 0.2)';
+        nctx.lineWidth = 1;
+        
+        const nodes = [];
+        for(let i=0; i<15; i++) nodes.push({x: Math.random()*w, y: Math.random()*h, r: Math.random()*3});
+        
+        nctx.clearRect(0,0,w,h);
+        nodes.forEach((n, i) => {
+            nctx.beginPath();
+            nctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+            nctx.fillStyle = '#a3a6ff';
+            nctx.fill();
+            
+            nodes.forEach((n2, j) => {
+                if(i !== j && Math.hypot(n.x-n2.x, n.y-n2.y) < 150) {
+                    nctx.beginPath();
+                    nctx.moveTo(n.x, n.y);
+                    nctx.lineTo(n2.x, n2.y);
+                    nctx.stroke();
+                }
+            });
+        });
+    }
+    window.addEventListener('resize', drawNetwork);
+    drawNetwork();
+    setInterval(drawNetwork, 2000);
+
+</script>
+</body></html>

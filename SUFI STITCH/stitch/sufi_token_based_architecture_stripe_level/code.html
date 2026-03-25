@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI OS | Intelligence Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--color-primary)",
+                        "secondary": "var(--color-secondary)",
+                        "tertiary": "var(--color-tertiary)",
+                        "background": "var(--color-bg)",
+                        "surface": "var(--color-surface)",
+                        "surface-low": "var(--color-surface-low)",
+                        "surface-high": "var(--color-surface-high)",
+                        "text-primary": "var(--color-text-primary)",
+                        "text-secondary": "var(--color-text-secondary)",
+                        "on-surface-variant": "var(--color-text-secondary)",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "xl": "16px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        "4xl": "48px",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        :root {
+            --color-primary: #a3a6ff;
+            --color-secondary: #ac8aff;
+            --color-tertiary: #ff6daf;
+            --color-bg: #0e0e0f;
+            --color-surface-low: #121214;
+            --color-surface: #18181b;
+            --color-surface-high: #1f1f23;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: rgba(255,255,255,0.7);
+            --glow-primary: 0 0 40px rgba(163,166,255,0.4);
+            --glow-tertiary: 0 0 40px rgba(255,109,175,0.4);
+            --border-opacity: rgba(255,255,255,0.08);
+            --glass-bg: rgba(38, 38, 39, 0.4);
+        }
+
+        [data-theme="light"] {
+            --color-primary: #494bd7;
+            --color-secondary: #5f28c8;
+            --color-tertiary: #d73357;
+            --color-bg: #fcf8f9;
+            --color-surface-low: #f3f0f1;
+            --color-surface: #ffffff;
+            --color-surface-high: #e8e6e7;
+            --color-text-primary: #0e0e0f;
+            --color-text-secondary: rgba(14,14,15,0.6);
+            --glow-primary: 0 0 40px rgba(73,75,215,0.2);
+            --glow-tertiary: 0 0 40px rgba(215,51,87,0.2);
+            --border-opacity: rgba(0,0,0,0.08);
+            --glass-bg: rgba(255,255,255,0.6);
+        }
+
+        body { 
+            background-color: var(--color-bg); 
+            color: var(--color-text-primary); 
+            -webkit-font-smoothing: antialiased; 
+            overflow-x: hidden; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        .glass-panel { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid var(--border-opacity); 
+        }
+        
+        .hero-gradient-text {
+            background: linear-gradient(to right, var(--color-primary), var(--color-tertiary), var(--color-primary));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 8s linear infinite;
+        }
+
+        .text-shimmer {
+            background: linear-gradient(90deg, var(--color-text-primary) 0%, var(--color-primary) 25%, var(--color-tertiary) 50%, var(--color-primary) 75%, var(--color-text-primary) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .layer-obsidian {
+            background-color: var(--color-bg);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(163, 166, 255, 0.03) 0%, transparent 70%),
+                radial-gradient(var(--border-opacity) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px;
+        }
+
+        .network-lines {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--color-primary) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, var(--color-tertiary) 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, var(--color-primary) 1px, transparent 1px);
+            background-size: 200px 200px;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+        }
+
+        .layer-2-shapes {
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .card-hover {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #custom-cursor {
+            pointer-events: none;
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(163,166,255,0.06) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            border-radius: 50%;
+        }
+
+        .bg-text-watermark {
+            position: absolute;
+            font-size: 25vw;
+            font-weight: 900;
+            color: var(--color-text-primary);
+            opacity: 0.02;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: -1;
+            user-select: none;
+            letter-spacing: -0.05em;
+        }
+
+        .section-overlap {
+            margin-top: -120px;
+            padding-top: 120px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 200;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30 selection:text-text-primary overflow-x-hidden">
+<div class="z-0" id="custom-cursor"></div>
+<button class="fixed bottom-8 left-8 z-[110] w-12 h-12 rounded-full glass-panel border border-white/10 flex items-center justify-center text-text-primary hover:scale-110 transition-all" id="theme-toggle">
+<span class="material-symbols-outlined">contrast</span>
+</button>
+<nav class="fixed top-0 w-full z-[100] bg-background/80 backdrop-blur-xl border-b border-white/5">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-text-primary tracking-tighter font-headline">SUFI</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-bold tracking-tight text-primary border-b-2 border-primary pb-1" href="#">Explore</a>
+<a class="font-headline font-bold tracking-tight text-text-secondary hover:text-text-primary transition-colors" href="#">Intelligence</a>
+<a class="font-headline font-bold tracking-tight text-text-secondary hover:text-text-primary transition-colors" href="#">Concierge</a>
+<a class="font-headline font-bold tracking-tight text-text-secondary hover:text-text-primary transition-colors" href="#">History</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-white/5 rounded-full px-4 py-2 hover:bg-white/10 transition-all duration-300">
+<span class="material-symbols-outlined text-text-secondary text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-text-primary placeholder-text-secondary" placeholder="Search Intelligence..." type="text"/>
+</div>
+<button class="p-2 text-text-secondary hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+<button class="p-2 text-text-secondary hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="relative">
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden py-32 px-8">
+<div class="absolute inset-0 layer-obsidian -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark top-1/4 left-[-5%]">SYSTEM</div>
+<div class="absolute inset-0 overflow-hidden -z-10 layer-2-shapes">
+<div class="floating-blur absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full"></div>
+<div class="floating-blur absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary/20 rounded-full"></div>
+</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-hero"></div>
+<div class="relative z-10 max-w-[1400px] w-full grid grid-cols-12 gap-8 items-center">
+<div class="col-span-12 lg:col-span-5 space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                    Predictive Core Active
+                </div>
+<h1 class="text-7xl md:text-9xl font-headline font-black tracking-tighter leading-[0.85] hero-gradient-text">
+                    SUFI OS
+                </h1>
+<p class="text-xl text-text-secondary leading-relaxed max-w-md">
+                    Interpreting neural data streams to synchronize your physiological state with urban gastronomy layers.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="magnetic-btn px-10 py-5 bg-primary text-background font-bold rounded-xl shadow-2xl hover:rounded-full transition-all duration-500" style="box-shadow: var(--glow-primary)">
+                        Initialize Discovery
+                    </button>
+<button class="magnetic-btn px-10 py-5 glass-panel text-text-primary font-bold rounded-xl hover:bg-white/10 transition-all duration-500">
+                        Diagnostics
+                    </button>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 flex flex-col items-center lg:items-end gap-8">
+<div class="glass-panel p-12 rounded-4xl w-full max-w-xl relative group overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<div class="relative flex flex-col items-center gap-6">
+<span class="text-primary text-[80px] font-black leading-none drop-shadow-2xl">Φ</span>
+<div class="text-center">
+<div class="text-8xl font-headline font-black text-text-primary">2.35</div>
+<p class="text-text-secondary font-bold tracking-[0.3em] uppercase text-[10px] mt-4">Intelligence Quotient Delta</p>
+</div>
+<div class="mt-8 flex gap-4 items-end h-16">
+<div class="w-1.5 h-8 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1.5 h-16 bg-tertiary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+<div class="w-1.5 h-12 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+<div class="w-1.5 h-14 bg-secondary rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- AI CONCIERGE SECTION -->
+<section class="relative section-overlap py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-b from-surface-low to-background -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark top-1/2 right-[-5%] rotate-90">CONCIERGE</div>
+<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-12 items-center">
+<div class="col-span-12 lg:col-span-7 order-2 lg:order-1">
+<div class="glass-panel rounded-3xl overflow-hidden min-h-[500px] flex flex-col relative group">
+<div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<h5 class="text-text-primary font-bold text-sm">SUFI Neural Agent</h5>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest">Active Processing</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary">more_vert</span>
+</div>
+<div class="flex-grow p-8 space-y-6 overflow-y-auto">
+<div class="flex gap-4 max-w-[80%]">
+<div class="w-8 h-8 rounded-full bg-primary/20 shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xs">auto_awesome</span>
+</div>
+<div class="bg-white/5 p-4 rounded-2xl rounded-tl-none text-sm text-text-secondary leading-relaxed">
+                                Neural streams detected. I've optimized your metabolic schedule for the next 4 hours. Would you like to view the urban gastro-mapping?
+                            </div>
+</div>
+<div class="flex gap-4 max-w-[80%] ml-auto flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-white/10 shrink-0 flex items-center justify-center text-text-primary">
+<span class="material-symbols-outlined text-xs">person</span>
+</div>
+<div class="bg-primary/20 p-4 rounded-2xl rounded-tr-none text-sm text-text-primary leading-relaxed">
+                                Yes, synchronize the spatial data now.
+                            </div>
+</div>
+</div>
+<div class="p-6 bg-black/40 border-t border-white/5">
+<div class="flex items-center bg-white/5 rounded-2xl px-6 py-4 border border-white/10">
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-text-primary placeholder-text-secondary" placeholder="Message SUFI..." type="text"/>
+<button class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background hover:rounded-full transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 order-1 lg:order-2 space-y-8">
+<div class="inline-flex items-center gap-2 text-primary text-[10px] font-bold tracking-widest uppercase">
+<span class="w-4 h-[1px] bg-primary"></span>
+                    AI Assistant
+                </div>
+<h2 class="text-6xl font-headline font-black tracking-tighter text-text-primary leading-tight">Just ask.</h2>
+<p class="text-text-secondary text-xl leading-relaxed">Your neural concierge doesn't just respond to commands—it anticipates your biological needs before you've even formulated the thought.</p>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-6 glass-panel rounded-2xl border border-white/5">
+<span class="material-symbols-outlined text-tertiary mb-3">auto_fix_high</span>
+<h6 class="text-text-primary font-bold mb-1 text-sm">Adaptive Flow</h6>
+<p class="text-[11px] text-text-secondary">Real-time tone adjustment based on heart rate variability.</p>
+</div>
+<div class="p-6 glass-panel rounded-2xl border border-white/5">
+<span class="material-symbols-outlined text-secondary mb-3">network_node</span>
+<h6 class="text-text-primary font-bold mb-1 text-sm">Mesh Intelligence</h6>
+<p class="text-[11px] text-text-secondary">Seamless handoff across all your active node interfaces.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- OWNER SYSTEM SECTION -->
+<section class="relative section-overlap py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 layer-obsidian -z-30 opacity-60"></div>
+<div class="bg-text-watermark top-1/4 left-[-10%]">OWNER</div>
+<div class="max-w-[1400px] mx-auto space-y-16">
+<div class="text-center space-y-4 max-w-3xl mx-auto">
+<h2 class="text-5xl font-headline font-black text-text-primary tracking-tighter text-shimmer">Control Architecture</h2>
+<p class="text-text-secondary text-lg">A unified dashboard for biological and environmental orchestration. Total visibility into your personal data sphere.</p>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 lg:col-span-8">
+<div class="glass-panel rounded-4xl p-12 h-full relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -z-10 group-hover:bg-primary/10 transition-all duration-700"></div>
+<div class="flex justify-between items-start mb-12">
+<div class="space-y-1">
+<h4 class="text-3xl font-headline font-bold text-text-primary tracking-tight">System Health</h4>
+<p class="text-sm text-text-secondary font-medium">9 active neural nodes operational.</p>
+</div>
+<div class="px-6 py-3 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+<span class="text-xs font-bold text-text-primary uppercase tracking-widest">Stable Sync</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="space-y-6">
+<div class="flex justify-between text-xs font-bold uppercase tracking-widest text-text-secondary">
+<span>Core Temp</span>
+<span class="text-text-primary">36.6°C</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[85%]"></div>
+</div>
+<div class="flex justify-between text-xs font-bold uppercase tracking-widest text-text-secondary">
+<span>Metabolism</span>
+<span class="text-text-primary">92%</span>
+</div>
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full w-[92%]"></div>
+</div>
+</div>
+<div class="md:col-span-2 flex items-center justify-center p-8 bg-white/5 rounded-3xl border border-white/5 relative">
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-48 h-48 border border-white/10 rounded-full animate-spin-slow"></div>
+<div class="absolute w-32 h-32 border border-primary/20 rounded-full animate-reverse-spin-slow"></div>
+</div>
+<div class="text-center relative z-10">
+<span class="text-4xl font-headline font-black text-text-primary">98.4</span>
+<p class="text-[10px] text-text-secondary font-bold uppercase tracking-widest mt-1">Biometric Index</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+<div class="flex-1 glass-panel rounded-3xl p-10 card-hover flex flex-col justify-between group">
+<div class="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">shield</span>
+</div>
+<div>
+<h5 class="text-xl font-headline font-bold text-text-primary mb-2">Vault Encryption</h5>
+<p class="text-sm text-text-secondary leading-relaxed">Quantum-secure neural data storage with zero-knowledge proof protocols.</p>
+</div>
+</div>
+<div class="flex-1 glass-panel rounded-3xl p-10 card-hover flex flex-col justify-between group">
+<div class="w-14 h-14 rounded-2xl bg-tertiary/10 flex items-center justify-center text-tertiary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">hub</span>
+</div>
+<div>
+<h5 class="text-xl font-headline font-bold text-text-primary mb-2">Node Governance</h5>
+<p class="text-sm text-text-secondary leading-relaxed">Manage your distributed processing power across urban edge networks.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- BENTO DISCOVERY SECTION -->
+<section class="relative section-overlap py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 bg-background -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark top-1/2 left-[-15%]">DISCOVER</div>
+<div class="max-w-[1400px] mx-auto">
+<div class="grid grid-cols-12 gap-8 mb-16 items-end">
+<div class="col-span-12 lg:col-span-7 space-y-4">
+<h2 class="text-5xl font-headline font-black text-text-primary tracking-tighter text-shimmer">Discovery Engine</h2>
+<p class="text-text-secondary text-lg max-w-xl">Scanning local gastronomy layers based on your neural profile and current metabolic velocity. Live stream active.</p>
+</div>
+<div class="col-span-12 lg:col-span-5 flex lg:justify-end gap-3">
+<span class="px-6 py-3 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 hover:bg-primary/20 transition-all cursor-pointer">Trending</span>
+<span class="px-6 py-3 bg-white/5 text-text-secondary rounded-full text-xs font-bold border border-white/5 hover:bg-white/10 transition-all cursor-pointer">Global Feed</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 lg:col-span-7 group relative h-[600px] rounded-4xl overflow-hidden card-hover">
+<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAleAa_4tn5R3XVw5xV5gsgoODOfay98FnyWuyyiXY0IiAcYz5uzPA6qUAaawaVaT9ZtAzGEaBEz_f3wJUWuaKXmK11H_UDRKJ10wEmMEhlU9naofPLl-Wc_moiPmAMy2K-Jy4UIb3hJ-kZ9AGM08qhoW1w8HquSviCOKbo1zUw-1zpmEabqr9gG_hCGTH-NCJArEu6d3QmosaSK1MrrDAqA8B0lOQnYJOtkssjNuL1iicI146OkmAlmGxXYnz2rLWqSYzbAKUT_A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12 flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div class="space-y-3">
+<span class="px-4 py-1.5 bg-tertiary text-background text-[10px] font-black uppercase rounded-full shadow-lg" style="box-shadow: var(--glow-tertiary)">98% Match Resonance</span>
+<h3 class="text-5xl font-headline font-black text-text-primary">Lumière Noire</h3>
+<p class="text-text-secondary max-w-md leading-relaxed">Molecular gastronomy meets obsidian aesthetics. Focused on raw textures and light play in high-density urban environments.</p>
+</div>
+<button class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-text-primary hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined text-3xl">north_east</span>
+</button>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-8">
+<div class="h-[284px] glass-panel rounded-3xl overflow-hidden p-8 flex items-center gap-8 group card-hover relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+<div class="w-36 h-36 rounded-2xl overflow-hidden shrink-0 shadow-2xl">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8BQvNDSWeN3UIcvII7iwLmcwJ2Q3Ya0jAkOVzs5c7paD6fuQ7kicGBUR1iVCH_alw1dlhgBk9lUG5KH43mDBFe2JT-BhzgZxgKFkZSSSgjFmkNB9_t5-e6IF1XLkg9kbK-aQPok-frvNbAhT-XnC-Dlr-0DHehY4bfb4xo04qjsa6ltOoXJAlLWz282bdmJ_PfDOH1YpiDRVXU99XhHrv9h7TekwHexEEwW4xmZjFlFSKO6fJF4yFaafVoH2zqK-iorbJDcWsSw"/>
+</div>
+<div class="space-y-3">
+<h4 class="text-3xl font-headline font-bold text-text-primary tracking-tight">Aether Kitchen</h4>
+<p class="text-text-secondary text-sm">Predictive nutrient optimization.</p>
+<div class="flex gap-4 pt-4">
+<span class="text-primary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> 15m</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-tertiary">star</span> 4.9</span>
+</div>
+</div>
+</div>
+<div class="h-[284px] glass-panel rounded-3xl overflow-hidden p-8 flex items-center gap-8 group card-hover relative">
+<div class="absolute bottom-0 left-0 w-32 h-32 bg-tertiary/5 rounded-full blur-3xl -z-10"></div>
+<div class="w-36 h-36 rounded-2xl overflow-hidden shrink-0 shadow-2xl">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jxuStINTLVeGNtRTc4QZVK7SDWEfhVWadbD1D8TSykJosVDHOAdlEyj2aVit-sET65fyqKqBcYzQFjUOH12Lo1ZoiOhEO-MkTuWbRH6f-ULH2O26wDQIpfwq1_L1G8EkyreuIRtwwc1SrgFDpNJlbwGEpV9aG_qGhdZE1voz0xLCGmPs1CLX1h7RSCvVftn6h5TF68Vcr_LnuZ2sRyLe03ZOV6-LICJMt9p2V7OlNpk-SjUZGCfneY_1_8ftKMKhcRGLfm4dig"/>
+</div>
+<div class="space-y-3">
+<h4 class="text-3xl font-headline font-bold text-text-primary tracking-tight">Void Gastropub</h4>
+<p class="text-text-secondary text-sm">Thermal intelligence methods.</p>
+<div class="flex gap-4 pt-4">
+<span class="text-primary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> Instant</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-tertiary">star</span> 4.8</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- INTEGRATED CTA SECTION -->
+<section class="relative section-overlap py-48 px-8 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-tertiary/10 -z-30"></div>
+<div class="absolute inset-0 overflow-hidden -z-20 layer-2-shapes">
+<div class="floating-blur absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full"></div>
+<div class="floating-blur absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-tertiary/20 rounded-full"></div>
+</div>
+<div class="bg-text-watermark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-[0.02]">START</div>
+<div class="max-w-[1000px] mx-auto text-center space-y-12 relative z-10">
+<div class="inline-flex items-center gap-3 px-6 py-2 rounded-full glass-panel border border-white/10 text-primary text-xs font-bold tracking-[0.3em] uppercase">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+                Ready for extraction
+            </div>
+<h2 class="text-7xl md:text-8xl font-headline font-black tracking-tighter text-text-primary leading-[0.9]">Start using SUFI</h2>
+<p class="text-text-secondary text-xl max-w-2xl mx-auto leading-relaxed">Join the neural orchestration layer. Synchronize your biology with the urban grid in under 12ms.</p>
+<div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
+<button class="magnetic-btn w-full md:w-auto px-16 py-6 bg-primary text-background font-black rounded-2xl hover:rounded-full transition-all duration-500 text-lg uppercase tracking-widest shadow-2xl" style="box-shadow: var(--glow-primary)">
+                    SUFI AI
+                </button>
+<button class="magnetic-btn w-full md:w-auto px-16 py-6 border-2 border-white/20 text-text-primary font-black rounded-2xl hover:rounded-full transition-all duration-500 text-lg uppercase tracking-widest hover:bg-white/5 backdrop-blur-sm">
+                    SUFI OS
+                </button>
+</div>
+</div>
+</section>
+</main>
+<footer class="w-full py-20 border-t border-white/5 bg-background relative z-20">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full max-w-[1920px] mx-auto gap-12">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="text-3xl font-black text-text-primary tracking-tighter font-headline">SUFI</span>
+<p class="text-[10px] uppercase tracking-[0.4em] text-text-secondary font-bold">© 2024 SUFI Intelligence Interface. All systems operational.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-12">
+<div class="flex flex-col gap-4">
+<span class="text-[10px] font-black text-text-primary uppercase tracking-[0.2em]">Platform</span>
+<a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#">Connectivity</a>
+<a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#">Nodes</a>
+</div>
+<div class="flex flex-col gap-4">
+<span class="text-[10px] font-black text-text-primary uppercase tracking-[0.2em]">Resource</span>
+<a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#">API Docs</a>
+<a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#">Privacy</a>
+</div>
+</div>
+<div class="flex gap-6">
+<div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer border border-white/5">
+<span class="material-symbols-outlined text-xl text-primary">public</span>
+</div>
+<div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer border border-white/5">
+<span class="material-symbols-outlined text-xl text-primary">terminal</span>
+</div>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-8 right-8 z-[100] flex items-center gap-4 bg-surface-high/80 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
+<div class="relative flex items-center justify-center w-2.5 h-2.5">
+<span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75 animate-ping"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary"></span>
+</div>
+<span class="text-[10px] font-black uppercase tracking-[0.2em] text-text-primary">Predictive Stream Active</span>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            if (html.getAttribute('data-theme') === 'light') {
+                html.removeAttribute('data-theme');
+                html.classList.add('dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                html.classList.remove('dark');
+            }
+        });
+
+        // Advanced Particle Generation
+        function createParticles(containerId, count) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                container.appendChild(p);
+                
+                const size = Math.random() * 4 + 1;
+                const opacity = Math.random() * 0.3 + 0.05;
+                
+                gsap.set(p, {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * 800,
+                    width: size,
+                    height: size,
+                    opacity: opacity,
+                    backgroundColor: Math.random() > 0.5 ? '#a3a6ff' : '#ff6daf'
+                });
+
+                gsap.to(p, {
+                    x: "+=" + (Math.random() * 200 - 100),
+                    y: "+=" + (Math.random() * 200 - 100),
+                    duration: 15 + Math.random() * 15,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+
+        createParticles('particle-container-hero', 40);
+
+        // Magnetic Buttons
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.35, y: y * 0.35, duration: 0.3, ease: "power2.out" });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+            });
+        });
+
+        // Parallax Blurs
+        const blurs = document.querySelectorAll('.floating-blur');
+        blurs.forEach((blur, i) => {
+            gsap.to(blur, {
+                x: i % 2 === 0 ? "100px" : "-100px",
+                y: i % 2 === 0 ? "-100px" : "100px",
+                duration: 15 + i * 3,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        });
+
+        // Cursor & Parallax Control
+        const cursor = document.getElementById('custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            gsap.to(cursor, { x: clientX, y: clientY, duration: 0.2 });
+            
+            gsap.to('.network-lines', {
+                x: (clientX - window.innerWidth / 2) * 0.02,
+                y: (clientY - window.innerHeight / 2) * 0.02,
+                duration: 1.5
+            });
+
+            gsap.to('.bg-text-watermark', {
+                x: (clientX - window.innerWidth / 2) * -0.015,
+                y: (clientY - window.innerHeight / 2) * -0.015,
+                duration: 2
+            });
+        });
+
+        gsap.to('.animate-spin-slow', {
+            rotation: 360,
+            duration: 20,
+            repeat: -1,
+            ease: "none"
+        });
+        gsap.to('.animate-reverse-spin-slow', {
+            rotation: -360,
+            duration: 15,
+            repeat: -1,
+            ease: "none"
+        });
+    });
+</script>
+</body></html>

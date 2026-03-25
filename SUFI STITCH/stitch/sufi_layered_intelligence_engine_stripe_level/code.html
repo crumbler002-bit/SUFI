@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI OS | Intelligence Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#5f28c8",
+                        "on-primary-fixed": "#000000",
+                        "tertiary": "#ff6daf",
+                        "inverse-primary": "#494bd7",
+                        "background": "#0e0e0f",
+                        "primary-fixed-dim": "#8387ff",
+                        "error-container": "#a70138",
+                        "on-secondary": "#280067",
+                        "tertiary-fixed": "#ff8cbc",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "tertiary-dim": "#ff67ad",
+                        "primary-container": "#9396ff",
+                        "on-tertiary-container": "#2f0018",
+                        "tertiary-fixed-dim": "#ff73b1",
+                        "outline": "#767576",
+                        "secondary": "#ac8aff",
+                        "primary": "#a3a6ff",
+                        "surface": "#0e0e0f",
+                        "on-tertiary-fixed-variant": "#740044",
+                        "on-secondary-fixed": "#40009b",
+                        "error-dim": "#d73357",
+                        "error": "#ff6e84",
+                        "on-error-container": "#ffb2b9",
+                        "on-background": "#ffffff",
+                        "secondary-fixed": "#dac9ff",
+                        "surface-variant": "#262627",
+                        "surface-dim": "#0e0e0f",
+                        "on-surface": "#ffffff",
+                        "inverse-surface": "#fcf8f9",
+                        "secondary-dim": "#8455ef",
+                        "surface-container-low": "#131314",
+                        "tertiary-container": "#fa53a4",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-primary": "#0f00a4",
+                        "on-tertiary": "#4b002a",
+                        "surface-container-high": "#201f21",
+                        "surface-container-highest": "#262627",
+                        "on-tertiary-fixed": "#37001d",
+                        "surface-container": "#1a191b",
+                        "outline-variant": "#484849",
+                        "secondary-container": "#5516be",
+                        "primary-fixed": "#9396ff",
+                        "inverse-on-surface": "#565556",
+                        "surface-container-lowest": "#000000",
+                        "surface-tint": "#a3a6ff",
+                        "surface-bright": "#2c2c2d",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "primary-dim": "#6063ee",
+                        "on-surface-variant": "#adaaab",
+                        "on-primary-container": "#0a0081",
+                        "on-error": "#490013"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #0e0e0f; color: white; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { background: rgba(38, 38, 39, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        
+        .hero-gradient-text {
+            background: linear-gradient(to right, #a3a6ff, #ff6daf, #a3a6ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 8s linear infinite;
+        }
+
+        .text-shimmer {
+            background: linear-gradient(90deg, #ffffff 0%, #a3a6ff 25%, #ff6daf 50%, #a3a6ff 75%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Layer 1: Obsidian Gradients & Grids */
+        .layer-obsidian {
+            background-color: #0e0e0f;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(163, 166, 255, 0.03) 0%, transparent 70%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* Network Lines Styling */
+        .network-lines {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 30%, #a3a6ff 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, #ff6daf 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, #a3a6ff 1px, transparent 1px);
+            background-size: 200px 200px;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .layer-2-shapes {
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .card-hover {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #custom-cursor {
+            pointer-events: none;
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(163,166,255,0.06) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30 selection:text-white overflow-x-hidden">
+<div class="z-0" id="custom-cursor"></div>
+<!-- Shared TopNavBar -->
+<nav class="fixed top-0 w-full z-[100] bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/5">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-bold tracking-tight text-[#a3a6ff] border-b-2 border-[#a3a6ff] pb-1" href="#">Explore</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Intelligence</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Concierge</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">History</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-white/5 rounded-full px-4 py-2 hover:bg-white/10 transition-all duration-300">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-white placeholder-on-surface-variant" placeholder="Search Intelligence..." type="text"/>
+</div>
+<button class="p-2 text-[#adaaab] hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+<button class="p-2 text-[#adaaab] hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="relative">
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden py-32 px-8">
+<!-- Layer 1: Obsidian & Grid -->
+<div class="absolute inset-0 layer-obsidian -z-30"></div>
+<div class="network-lines -z-20"></div>
+<!-- Layer 2: Floating Blurs & Particles -->
+<div class="absolute inset-0 overflow-hidden -z-10 layer-2-shapes">
+<div class="floating-blur absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full"></div>
+<div class="floating-blur absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary/20 rounded-full"></div>
+</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-hero"></div>
+<!-- Layer 3: Primary Content (Asymmetrical Bento) -->
+<div class="relative z-10 max-w-[1400px] w-full grid grid-cols-12 gap-8 items-center">
+<div class="col-span-12 lg:col-span-5 space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                    Predictive Core Active
+                </div>
+<h1 class="text-7xl md:text-8xl font-headline font-black tracking-tighter leading-[0.9] hero-gradient-text">
+                    SUFI OS
+                </h1>
+<p class="text-xl text-on-surface-variant leading-relaxed max-w-md">
+                    Interpreting neural data streams to synchronize your physiological state with urban gastronomy layers.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="magnetic-btn px-10 py-5 bg-primary text-on-primary font-bold rounded-xl shadow-2xl shadow-primary/20 hover:rounded-full transition-all duration-500">
+                        Initialize Discovery
+                    </button>
+<button class="magnetic-btn px-10 py-5 glass-panel text-white font-bold rounded-xl hover:bg-white/10 transition-all duration-500">
+                        System Diagnostics
+                    </button>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 flex flex-col items-center lg:items-end gap-8">
+<div class="glass-panel p-12 rounded-[3rem] w-full max-w-lg relative group overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<div class="relative flex flex-col items-center gap-4">
+<span class="text-primary text-[80px] font-black leading-none drop-shadow-2xl">Φ</span>
+<div class="text-center">
+<div class="text-7xl font-headline font-black text-white">2.35</div>
+<p class="text-on-surface-variant font-bold tracking-[0.2em] uppercase text-[10px] mt-2">Intelligence Quotient Delta</p>
+</div>
+<div class="mt-8 flex gap-3">
+<div class="w-1 h-8 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1 h-12 bg-tertiary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+<div class="w-1 h-10 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- DISCOVERY SECTION -->
+<section class="relative py-32 px-8 overflow-hidden">
+<!-- Layer 1 -->
+<div class="absolute inset-0 bg-[#0e0e0f] -z-30"></div>
+<div class="absolute inset-0 opacity-10 -z-20" style="background-image: radial-gradient(circle at 1px 1px, rgba(163, 166, 255, 0.2) 1px, transparent 0); background-size: 30px 30px;"></div>
+<div class="network-lines -z-20"></div>
+<!-- Layer 2 -->
+<div class="absolute inset-0 overflow-hidden -z-10 layer-2-shapes">
+<div class="floating-blur absolute top-1/2 left-0 w-[600px] h-[600px] bg-tertiary/10 rounded-full"></div>
+<div class="floating-blur absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full"></div>
+</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-discovery"></div>
+<!-- Layer 3: Bento Grid Content -->
+<div class="max-w-[1400px] mx-auto">
+<div class="grid grid-cols-12 gap-12 mb-20 items-end">
+<div class="col-span-12 lg:col-span-6 space-y-4">
+<h2 class="text-5xl font-headline font-black text-white tracking-tighter text-shimmer">Discovery Engine</h2>
+<p class="text-on-surface-variant text-lg max-w-lg">Scanning local gastronomy layers based on your neural profile and current metabolic velocity.</p>
+</div>
+<div class="col-span-12 lg:col-span-6 flex lg:justify-end gap-3">
+<span class="px-6 py-3 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 hover:bg-primary/20 transition-all cursor-pointer">Trending</span>
+<span class="px-6 py-3 bg-white/5 text-on-surface-variant rounded-full text-xs font-bold border border-white/5 hover:bg-white/10 transition-all cursor-pointer">Global Feed</span>
+</div>
+</div>
+<!-- Asymmetrical Cards Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Large Card (Span 7) -->
+<div class="col-span-12 lg:col-span-7 group relative h-[500px] rounded-[3rem] overflow-hidden card-hover">
+<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAleAa_4tn5R3XVw5xV5gsgoODOfay98FnyWuyyiXY0IiAcYz5uzPA6qUAaawaVaT9ZtAzGEaBEz_f3wJUWuaKXmK11H_UDRKJ10wEmMEhlU9naofPLl-Wc_moiPmAMy2K-Jy4UIb3hJ-kZ9AGM08qhoW1w8HquSviCOKbo1zUw-1zpmEabqr9gG_hCGTH-NCJArEu6d3QmosaSK1MrrDAqA8B0lOQnYJOtkssjNuL1iicI146OkmAlmGxXYnz2rLWqSYzbAKUT_A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+<div class="absolute bottom-10 left-10 right-10 flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div class="space-y-2">
+<span class="px-3 py-1 bg-tertiary text-on-tertiary text-[10px] font-black uppercase rounded-lg">98% Match</span>
+<h3 class="text-4xl font-headline font-black text-white">Lumière Noire</h3>
+<p class="text-on-surface-variant max-w-md">Molecular gastronomy meets obsidian aesthetics. Focused on raw textures and light play.</p>
+</div>
+<button class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined">north_east</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Cards (Span 5) -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-8">
+<div class="h-[234px] glass-panel rounded-[2.5rem] overflow-hidden p-8 flex items-center gap-8 group card-hover">
+<div class="w-32 h-32 rounded-3xl overflow-hidden shrink-0">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8BQvNDSWeN3UIcvII7iwLmcwJ2Q3Ya0jAkOVzs5c7paD6fuQ7kicGBUR1iVCH_alw1dlhgBk9lUG5KH43mDBFe2JT-BhzgZxgKFkZSSSgjFmkNB9_t5-e6IF1XLkg9kbK-aQPok-frvNbAhT-XnC-Dlr-0DHehY4bfb4xo04qjsa6ltOoXJAlLWz282bdmJ_PfDOH1YpiDRVXU99XhHrv9h7TekwHexEEwW4xmZjFlFSKO6fJF4yFaafVoH2zqK-iorbJDcWsSw"/>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline font-bold text-white">Aether Kitchen</h4>
+<p class="text-on-surface-variant text-sm">Predictive nutrient optimization.</p>
+<div class="flex gap-4 pt-2">
+<span class="text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 15m</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">star</span> 4.9</span>
+</div>
+</div>
+</div>
+<div class="h-[234px] glass-panel rounded-[2.5rem] overflow-hidden p-8 flex items-center gap-8 group card-hover">
+<div class="w-32 h-32 rounded-3xl overflow-hidden shrink-0">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jxuStINTLVeGNtRTc4QZVK7SDWEfhVWadbD1D8TSykJosVDHOAdlEyj2aVit-sET65fyqKqBcYzQFjUOH12Lo1ZoiOhEO-MkTuWbRH6f-ULH2O26wDQIpfwq1_L1G8EkyreuIRtwwc1SrgFDpNJlbwGEpV9aG_qGhdZE1voz0xLCGmPs1CLX1h7RSCvVftn6h5TF68Vcr_LnuZ2sRyLe03ZOV6-LICJMt9p2V7OlNpk-SjUZGCfneY_1_8ftKMKhcRGLfm4dig"/>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline font-bold text-white">Void Gastropub</h4>
+<p class="text-on-surface-variant text-sm">Thermal intelligence methods.</p>
+<div class="flex gap-4 pt-2">
+<span class="text-primary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> Instant</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">star</span> 4.8</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- STATS / PERFORMANCE SECTION -->
+<section class="relative py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 layer-obsidian -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-16 items-center">
+<div class="col-span-12 lg:col-span-5 space-y-8 relative z-10">
+<h2 class="text-6xl font-headline font-black tracking-tighter leading-tight text-shimmer">
+                    Predictive<br/>Optimization.
+                </h2>
+<p class="text-on-surface-variant text-lg leading-relaxed">
+                    SUFI OS interprets physiological data streams, ensuring every experience is a perfect alignment of biology and environment.
+                </p>
+<div class="p-8 glass-panel rounded-3xl border-l-4 border-tertiary">
+<span class="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em]">Neural Match Score</span>
+<div class="text-5xl font-headline font-black text-white mt-2">99.98%</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 grid grid-cols-2 gap-6 relative z-10">
+<div class="p-10 glass-panel rounded-[2.5rem] space-y-4 hover:bg-white/5 transition-all card-hover">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Accuracy</span>
+<div class="text-4xl font-headline font-black text-white">99.4%</div>
+</div>
+<div class="p-10 glass-panel rounded-[2.5rem] space-y-4 hover:bg-white/5 transition-all translate-y-8 card-hover">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Latency</span>
+<div class="text-4xl font-headline font-black text-white">12ms</div>
+</div>
+<div class="p-10 glass-panel rounded-[2.5rem] space-y-4 hover:bg-white/5 transition-all card-hover">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Nodes</span>
+<div class="text-4xl font-headline font-black text-white">4.2k</div>
+</div>
+<div class="p-10 glass-panel rounded-[2.5rem] space-y-4 hover:bg-white/5 transition-all translate-y-8 card-hover">
+<span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Sync</span>
+<div class="text-4xl font-headline font-black text-white">1:1</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="w-full py-16 border-t border-white/5 bg-[#0e0e0f] relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full max-w-[1920px] mx-auto gap-8">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="text-xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">© 2024 SUFI Intelligence. All systems operational.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-white transition-colors" href="#">Connectivity</a>
+<a class="text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-white transition-colors" href="#">API</a>
+<a class="text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-white transition-colors" href="#">Privacy</a>
+<a class="text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-white transition-colors" href="#">Status</a>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-sm text-primary">public</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-sm text-primary">terminal</span>
+</div>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-8 right-8 z-[100] flex items-center gap-3 bg-surface-container-highest/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10">
+<div class="relative flex items-center justify-center w-2 h-2">
+<span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75 animate-ping"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</div>
+<span class="text-[10px] font-black uppercase tracking-widest text-white">Predictive Stream Active</span>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Particle Generation
+        function createParticles(containerId, count) {
+            const container = document.getElementById(containerId);
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                container.appendChild(p);
+                
+                const size = Math.random() * 3 + 1;
+                gsap.set(p, {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * 800,
+                    width: size,
+                    height: size,
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+
+                gsap.to(p, {
+                    x: "+=" + (Math.random() * 100 - 50),
+                    y: "+=" + (Math.random() * 100 - 50),
+                    duration: 5 + Math.random() * 5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+
+        createParticles('particle-container-hero', 30);
+        createParticles('particle-container-discovery', 40);
+
+        // Magnetic Buttons
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.35, y: y * 0.35, duration: 0.3, ease: "power2.out" });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+            });
+        });
+
+        // Parallax Blurs
+        const blurs = document.querySelectorAll('.floating-blur');
+        blurs.forEach((blur, i) => {
+            gsap.to(blur, {
+                x: i % 2 === 0 ? "50px" : "-50px",
+                y: i % 2 === 0 ? "-50px" : "50px",
+                duration: 10 + i * 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        });
+
+        // Cursor & Parallax Control
+        const cursor = document.getElementById('custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            gsap.to(cursor, { x: clientX, y: clientY, duration: 0.2 });
+            
+            // Move network lines slightly
+            gsap.to('.network-lines', {
+                x: (clientX - window.innerWidth / 2) * 0.01,
+                y: (clientY - window.innerHeight / 2) * 0.01,
+                duration: 1
+            });
+        });
+    });
+</script>
+</body></html>

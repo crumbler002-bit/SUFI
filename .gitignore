@@ -58,6 +58,7 @@ yarn-error.log*
 # Frontend build
 dist/
 build/
+.next/
 
 # Database
 *.db

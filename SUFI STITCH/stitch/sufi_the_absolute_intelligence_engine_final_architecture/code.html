@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI OS | Intelligence Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#5f28c8",
+                        "on-primary-fixed": "#000000",
+                        "tertiary": "#ff6daf",
+                        "inverse-primary": "#494bd7",
+                        "background": "#0e0e0f",
+                        "primary-fixed-dim": "#8387ff",
+                        "error-container": "#a70138",
+                        "on-secondary": "#280067",
+                        "tertiary-fixed": "#ff8cbc",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "tertiary-dim": "#ff67ad",
+                        "primary-container": "#9396ff",
+                        "on-tertiary-container": "#2f0018",
+                        "tertiary-fixed-dim": "#ff73b1",
+                        "outline": "#767576",
+                        "secondary": "#ac8aff",
+                        "primary": "#a3a6ff",
+                        "surface": "#0e0e0f",
+                        "on-tertiary-fixed-variant": "#740044",
+                        "on-secondary-fixed": "#40009b",
+                        "error-dim": "#d73357",
+                        "error": "#ff6e84",
+                        "on-error-container": "#ffb2b9",
+                        "on-background": "#ffffff",
+                        "secondary-fixed": "#dac9ff",
+                        "surface-variant": "#262627",
+                        "surface-dim": "#0e0e0f",
+                        "on-surface": "#ffffff",
+                        "inverse-surface": "#fcf8f9",
+                        "secondary-dim": "#8455ef",
+                        "surface-container-low": "#131314",
+                        "tertiary-container": "#fa53a4",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-primary": "#0f00a4",
+                        "on-tertiary": "#4b002a",
+                        "surface-container-high": "#201f21",
+                        "surface-container-highest": "#262627",
+                        "on-tertiary-fixed": "#37001d",
+                        "surface-container": "#1a191b",
+                        "outline-variant": "#484849",
+                        "secondary-container": "#5516be",
+                        "primary-fixed": "#9396ff",
+                        "inverse-on-surface": "#565556",
+                        "surface-container-lowest": "#000000",
+                        "surface-tint": "#a3a6ff",
+                        "surface-bright": "#2c2c2d",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "primary-dim": "#6063ee",
+                        "on-surface-variant": "#adaaab",
+                        "on-primary-container": "#0a0081",
+                        "on-error": "#490013"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #0e0e0f; color: white; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { background: rgba(38, 38, 39, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        
+        .hero-gradient-text {
+            background: linear-gradient(to right, #a3a6ff, #ff6daf, #a3a6ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 8s linear infinite;
+        }
+
+        .text-shimmer {
+            background: linear-gradient(90deg, #ffffff 0%, #a3a6ff 25%, #ff6daf 50%, #a3a6ff 75%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .layer-obsidian {
+            background-color: #0e0e0f;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(163, 166, 255, 0.03) 0%, transparent 70%),
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px;
+        }
+
+        .network-lines {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 30%, #a3a6ff 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, #ff6daf 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, #a3a6ff 1px, transparent 1px);
+            background-size: 200px 200px;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+        }
+
+        .layer-2-shapes {
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .card-hover {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #custom-cursor {
+            pointer-events: none;
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(163,166,255,0.06) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            border-radius: 50%;
+        }
+
+        .bg-text-watermark {
+            position: absolute;
+            font-size: 25vw;
+            font-weight: 900;
+            color: white;
+            opacity: 0.02;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: -1;
+            user-select: none;
+            letter-spacing: -0.05em;
+        }
+
+        .section-overlap {
+            margin-top: -120px;
+            padding-top: 120px;
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30 selection:text-white overflow-x-hidden">
+<div class="z-0" id="custom-cursor"></div>
+<!-- Shared TopNavBar -->
+<nav class="fixed top-0 w-full z-[100] bg-[#0e0e0f]/80 backdrop-blur-xl border-b border-white/5">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-bold tracking-tight text-[#a3a6ff] border-b-2 border-[#a3a6ff] pb-1" href="#">Explore</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Intelligence</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">Concierge</a>
+<a class="font-headline font-bold tracking-tight text-[#adaaab] hover:text-white transition-colors" href="#">History</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-white/5 rounded-full px-4 py-2 hover:bg-white/10 transition-all duration-300">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-white placeholder-on-surface-variant" placeholder="Search Intelligence..." type="text"/>
+</div>
+<button class="p-2 text-[#adaaab] hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+<button class="p-2 text-[#adaaab] hover:bg-white/5 rounded-full transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="relative">
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden py-32 px-8">
+<div class="absolute inset-0 layer-obsidian -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark top-1/4 left-[-5%]">SYSTEM</div>
+<div class="absolute inset-0 overflow-hidden -z-10 layer-2-shapes">
+<div class="floating-blur absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full"></div>
+<div class="floating-blur absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary/20 rounded-full"></div>
+</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-hero"></div>
+<div class="relative z-10 max-w-[1400px] w-full grid grid-cols-12 gap-8 items-center">
+<div class="col-span-12 lg:col-span-5 space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                    Predictive Core Active
+                </div>
+<h1 class="text-7xl md:text-9xl font-headline font-black tracking-tighter leading-[0.85] hero-gradient-text">
+                    SUFI OS
+                </h1>
+<p class="text-xl text-on-surface-variant leading-relaxed max-w-md">
+                    Interpreting neural data streams to synchronize your physiological state with urban gastronomy layers.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="magnetic-btn px-10 py-5 bg-primary text-on-primary font-bold rounded-xl shadow-2xl shadow-primary/20 hover:rounded-full transition-all duration-500">
+                        Initialize Discovery
+                    </button>
+<button class="magnetic-btn px-10 py-5 glass-panel text-white font-bold rounded-xl hover:bg-white/10 transition-all duration-500">
+                        Diagnostics
+                    </button>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 flex flex-col items-center lg:items-end gap-8">
+<div class="glass-panel p-12 rounded-[3.5rem] w-full max-w-xl relative group overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<div class="relative flex flex-col items-center gap-6">
+<span class="text-primary text-[80px] font-black leading-none drop-shadow-2xl">Φ</span>
+<div class="text-center">
+<div class="text-8xl font-headline font-black text-white">2.35</div>
+<p class="text-on-surface-variant font-bold tracking-[0.3em] uppercase text-[10px] mt-4">Intelligence Quotient Delta</p>
+</div>
+<div class="mt-8 flex gap-4 items-end h-16">
+<div class="w-1.5 h-8 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1.5 h-16 bg-tertiary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+<div class="w-1.5 h-12 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+<div class="w-1.5 h-14 bg-secondary rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- OVERLAPPING FEATURE SECTION -->
+<section class="relative section-overlap px-8 pb-32 overflow-hidden">
+<div class="absolute inset-0 layer-obsidian -z-30 opacity-50"></div>
+<div class="bg-text-watermark bottom-1/4 right-[-10%]">CORE</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-features"></div>
+<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-8 lg:gap-16 items-center">
+<div class="col-span-12 lg:col-span-7 order-2 lg:order-1">
+<div class="grid grid-cols-2 gap-4 md:gap-8">
+<div class="p-8 md:p-12 glass-panel rounded-[3rem] space-y-4 card-hover mt-12">
+<div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h4 class="text-2xl font-bold font-headline">Neural Mapping</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">High-fidelity synchronization of cortical activity with spatial environments.</p>
+</div>
+<div class="p-8 md:p-12 glass-panel rounded-[3rem] space-y-4 card-hover">
+<div class="w-12 h-12 bg-tertiary/10 rounded-2xl flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h4 class="text-2xl font-bold font-headline">Bio-Predictive</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Anticipatory nutrient delivery based on metabolic velocity forecasting.</p>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 space-y-8 order-1 lg:order-2">
+<div class="inline-flex items-center gap-2 text-tertiary text-[10px] font-bold tracking-widest uppercase">
+<span class="w-4 h-[1px] bg-tertiary"></span>
+                    Architecture
+                </div>
+<h2 class="text-5xl md:text-6xl font-headline font-black tracking-tighter text-white">Immersive Sync.</h2>
+<p class="text-on-surface-variant text-lg">Every touchpoint in the SUFI ecosystem is calibrated to your current physiological resonance, creating a seamless bridge between data and reality.</p>
+<div class="flex items-center gap-4 p-4 glass-panel rounded-2xl max-w-xs">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">bolt</span>
+</div>
+<span class="text-xs font-bold text-white tracking-widest uppercase">12ms Response Delay</span>
+</div>
+</div>
+</div>
+</section>
+<!-- BENTO INTERACTIVE DEMO -->
+<section class="relative section-overlap py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 bg-[#0e0e0f] -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark top-1/2 left-[-15%]">DISCOVER</div>
+<div class="max-w-[1400px] mx-auto">
+<div class="grid grid-cols-12 gap-8 mb-16 items-end">
+<div class="col-span-12 lg:col-span-7 space-y-4">
+<h2 class="text-5xl font-headline font-black text-white tracking-tighter text-shimmer">Discovery Engine</h2>
+<p class="text-on-surface-variant text-lg max-w-xl">Scanning local gastronomy layers based on your neural profile and current metabolic velocity. Live stream active.</p>
+</div>
+<div class="col-span-12 lg:col-span-5 flex lg:justify-end gap-3">
+<span class="px-6 py-3 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 hover:bg-primary/20 transition-all cursor-pointer">Trending</span>
+<span class="px-6 py-3 bg-white/5 text-on-surface-variant rounded-full text-xs font-bold border border-white/5 hover:bg-white/10 transition-all cursor-pointer">Global Feed</span>
+</div>
+</div>
+<!-- Bento Grid Split 7/5 -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Main Focus (Span 7) -->
+<div class="col-span-12 lg:col-span-7 group relative h-[600px] rounded-[3.5rem] overflow-hidden card-hover">
+<img alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAleAa_4tn5R3XVw5xV5gsgoODOfay98FnyWuyyiXY0IiAcYz5uzPA6qUAaawaVaT9ZtAzGEaBEz_f3wJUWuaKXmK11H_UDRKJ10wEmMEhlU9naofPLl-Wc_moiPmAMy2K-Jy4UIb3hJ-kZ9AGM08qhoW1w8HquSviCOKbo1zUw-1zpmEabqr9gG_hCGTH-NCJArEu6d3QmosaSK1MrrDAqA8B0lOQnYJOtkssjNuL1iicI146OkmAlmGxXYnz2rLWqSYzbAKUT_A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12 flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div class="space-y-3">
+<span class="px-4 py-1.5 bg-tertiary text-on-tertiary text-[10px] font-black uppercase rounded-full shadow-lg shadow-tertiary/20">98% Match Resonance</span>
+<h3 class="text-5xl font-headline font-black text-white">Lumière Noire</h3>
+<p class="text-on-surface-variant max-w-md leading-relaxed">Molecular gastronomy meets obsidian aesthetics. Focused on raw textures and light play in high-density urban environments.</p>
+</div>
+<button class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined text-3xl">north_east</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Cards (Span 5) -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-8">
+<div class="h-[284px] glass-panel rounded-[3rem] overflow-hidden p-8 flex items-center gap-8 group card-hover relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+<div class="w-36 h-36 rounded-3xl overflow-hidden shrink-0 shadow-2xl">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8BQvNDSWeN3UIcvII7iwLmcwJ2Q3Ya0jAkOVzs5c7paD6fuQ7kicGBUR1iVCH_alw1dlhgBk9lUG5KH43mDBFe2JT-BhzgZxgKFkZSSSgjFmkNB9_t5-e6IF1XLkg9kbK-aQPok-frvNbAhT-XnC-Dlr-0DHehY4bfb4xo04qjsa6ltOoXJAlLWz282bdmJ_PfDOH1YpiDRVXU99XhHrv9h7TekwHexEEwW4xmZjFlFSKO6fJF4yFaafVoH2zqK-iorbJDcWsSw"/>
+</div>
+<div class="space-y-3">
+<h4 class="text-3xl font-headline font-bold text-white tracking-tight">Aether Kitchen</h4>
+<p class="text-on-surface-variant text-sm">Predictive nutrient optimization.</p>
+<div class="flex gap-4 pt-4">
+<span class="text-primary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> 15m</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-tertiary">star</span> 4.9</span>
+</div>
+</div>
+</div>
+<div class="h-[284px] glass-panel rounded-[3rem] overflow-hidden p-8 flex items-center gap-8 group card-hover relative">
+<div class="absolute bottom-0 left-0 w-32 h-32 bg-tertiary/5 rounded-full blur-3xl -z-10"></div>
+<div class="w-36 h-36 rounded-3xl overflow-hidden shrink-0 shadow-2xl">
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jxuStINTLVeGNtRTc4QZVK7SDWEfhVWadbD1D8TSykJosVDHOAdlEyj2aVit-sET65fyqKqBcYzQFjUOH12Lo1ZoiOhEO-MkTuWbRH6f-ULH2O26wDQIpfwq1_L1G8EkyreuIRtwwc1SrgFDpNJlbwGEpV9aG_qGhdZE1voz0xLCGmPs1CLX1h7RSCvVftn6h5TF68Vcr_LnuZ2sRyLe03ZOV6-LICJMt9p2V7OlNpk-SjUZGCfneY_1_8ftKMKhcRGLfm4dig"/>
+</div>
+<div class="space-y-3">
+<h4 class="text-3xl font-headline font-bold text-white tracking-tight">Void Gastropub</h4>
+<p class="text-on-surface-variant text-sm">Thermal intelligence methods.</p>
+<div class="flex gap-4 pt-4">
+<span class="text-primary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> Instant</span>
+<span class="text-secondary text-xs font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-tertiary">star</span> 4.8</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- DEEP EXPLANATION (Stats/Logic) -->
+<section class="relative section-overlap py-32 px-8 overflow-hidden">
+<div class="absolute inset-0 layer-obsidian -z-30"></div>
+<div class="network-lines -z-20"></div>
+<div class="bg-text-watermark bottom-0 right-[-5%]">LOGIC</div>
+<div class="absolute inset-0 pointer-events-none -z-10" id="particle-container-stats"></div>
+<div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-16 items-start">
+<div class="col-span-12 lg:col-span-5 space-y-12 relative z-10 sticky top-32">
+<div class="space-y-6">
+<h2 class="text-6xl font-headline font-black tracking-tighter leading-tight text-shimmer">
+                        Predictive<br/>Optimization.
+                    </h2>
+<p class="text-on-surface-variant text-xl leading-relaxed">
+                        SUFI OS interprets physiological data streams, ensuring every experience is a perfect alignment of biology and environment.
+                    </p>
+</div>
+<div class="p-10 glass-panel rounded-[3.5rem] border-l-8 border-tertiary relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/10 rotate-45 translate-x-16 -translate-y-16 group-hover:rotate-90 transition-transform duration-1000"></div>
+<span class="text-on-surface-variant text-[12px] font-black uppercase tracking-[0.3em]">Neural Match Score</span>
+<div class="text-7xl font-headline font-black text-white mt-4 tracking-tighter">99.98%</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 grid grid-cols-2 gap-8 relative z-10 pt-12">
+<div class="p-12 glass-panel rounded-[3.5rem] space-y-6 hover:bg-white/5 transition-all card-hover border border-white/5">
+<span class="text-primary text-xs font-black uppercase tracking-[0.2em]">Accuracy</span>
+<div class="text-6xl font-headline font-black text-white">99.4%</div>
+<p class="text-on-surface-variant text-sm">Real-time prediction confidence.</p>
+</div>
+<div class="p-12 glass-panel rounded-[3.5rem] space-y-6 hover:bg-white/5 transition-all translate-y-16 card-hover border border-white/5">
+<span class="text-tertiary text-xs font-black uppercase tracking-[0.2em]">Latency</span>
+<div class="text-6xl font-headline font-black text-white">12ms</div>
+<p class="text-on-surface-variant text-sm">Fiber-optic neural response.</p>
+</div>
+<div class="p-12 glass-panel rounded-[3.5rem] space-y-6 hover:bg-white/5 transition-all card-hover border border-white/5">
+<span class="text-secondary text-xs font-black uppercase tracking-[0.2em]">Nodes</span>
+<div class="text-6xl font-headline font-black text-white">4.2k</div>
+<p class="text-on-surface-variant text-sm">Global processing hubs active.</p>
+</div>
+<div class="p-12 glass-panel rounded-[3.5rem] space-y-6 hover:bg-white/5 transition-all translate-y-16 card-hover border border-white/5">
+<span class="text-white/60 text-xs font-black uppercase tracking-[0.2em]">Sync</span>
+<div class="text-6xl font-headline font-black text-white">1:1</div>
+<p class="text-on-surface-variant text-sm">Zero-loss state translation.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- INTEGRATED CTA -->
+<section class="relative section-overlap py-48 px-8 overflow-hidden">
+<div class="absolute inset-0 bg-[#0e0e0f] -z-30"></div>
+<div class="bg-text-watermark top-1/4 left-1/2 -translate-x-1/2 text-center opacity-[0.015]">CONNECTED</div>
+<div class="absolute inset-0 overflow-hidden -z-10 layer-2-shapes">
+<div class="floating-blur absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full"></div>
+</div>
+<div class="max-w-[1000px] mx-auto text-center space-y-12 relative z-10">
+<div class="inline-flex items-center gap-3 px-6 py-2 rounded-full glass-panel border border-white/10 text-primary text-xs font-bold tracking-[0.3em] uppercase">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+                Ready for extraction
+            </div>
+<h2 class="text-7xl md:text-8xl font-headline font-black tracking-tighter text-white leading-[0.9]">Synchronize your<br/>reality today.</h2>
+<div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
+<button class="magnetic-btn px-16 py-6 bg-white text-black font-black rounded-2xl hover:rounded-full transition-all duration-500 text-lg uppercase tracking-widest">
+                    Launch OS
+                </button>
+<button class="magnetic-btn px-16 py-6 glass-panel text-white font-black rounded-2xl hover:rounded-full transition-all duration-500 text-lg uppercase tracking-widest">
+                    Request Demo
+                </button>
+</div>
+</div>
+</section>
+</main>
+<footer class="w-full py-20 border-t border-white/5 bg-[#0e0e0f] relative z-20">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full max-w-[1920px] mx-auto gap-12">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="text-3xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<p class="text-[10px] uppercase tracking-[0.4em] text-on-surface-variant font-bold">© 2024 SUFI Intelligence Interface. All systems operational.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-12">
+<div class="flex flex-col gap-4">
+<span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Platform</span>
+<a class="text-sm text-[#adaaab] hover:text-primary transition-colors" href="#">Connectivity</a>
+<a class="text-sm text-[#adaaab] hover:text-primary transition-colors" href="#">Nodes</a>
+</div>
+<div class="flex flex-col gap-4">
+<span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Resource</span>
+<a class="text-sm text-[#adaaab] hover:text-primary transition-colors" href="#">API Docs</a>
+<a class="text-sm text-[#adaaab] hover:text-primary transition-colors" href="#">Privacy</a>
+</div>
+</div>
+<div class="flex gap-6">
+<div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer border border-white/5">
+<span class="material-symbols-outlined text-xl text-primary">public</span>
+</div>
+<div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer border border-white/5">
+<span class="material-symbols-outlined text-xl text-primary">terminal</span>
+</div>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-8 right-8 z-[100] flex items-center gap-4 bg-surface-container-highest/80 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
+<div class="relative flex items-center justify-center w-2.5 h-2.5">
+<span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75 animate-ping"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary"></span>
+</div>
+<span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Predictive Stream Active</span>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Advanced Particle Generation
+        function createParticles(containerId, count) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                container.appendChild(p);
+                
+                const size = Math.random() * 4 + 1;
+                const opacity = Math.random() * 0.3 + 0.05;
+                
+                gsap.set(p, {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * container.offsetHeight,
+                    width: size,
+                    height: size,
+                    opacity: opacity,
+                    backgroundColor: Math.random() > 0.5 ? '#a3a6ff' : '#ff6daf'
+                });
+
+                gsap.to(p, {
+                    x: "+=" + (Math.random() * 200 - 100),
+                    y: "+=" + (Math.random() * 200 - 100),
+                    duration: 15 + Math.random() * 15,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+
+        createParticles('particle-container-hero', 40);
+        createParticles('particle-container-features', 30);
+        createParticles('particle-container-stats', 40);
+
+        // Magnetic Buttons
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.35, y: y * 0.35, duration: 0.3, ease: "power2.out" });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+            });
+        });
+
+        // Parallax Blurs
+        const blurs = document.querySelectorAll('.floating-blur');
+        blurs.forEach((blur, i) => {
+            gsap.to(blur, {
+                x: i % 2 === 0 ? "100px" : "-100px",
+                y: i % 2 === 0 ? "-100px" : "100px",
+                duration: 15 + i * 3,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        });
+
+        // Cursor & Parallax Control
+        const cursor = document.getElementById('custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            gsap.to(cursor, { x: clientX, y: clientY, duration: 0.2 });
+            
+            // Move network lines slightly
+            gsap.to('.network-lines', {
+                x: (clientX - window.innerWidth / 2) * 0.02,
+                y: (clientY - window.innerHeight / 2) * 0.02,
+                duration: 1.5
+            });
+
+            // Move watermarks very slightly for depth
+            gsap.to('.bg-text-watermark', {
+                x: (clientX - window.innerWidth / 2) * -0.015,
+                y: (clientY - window.innerHeight / 2) * -0.015,
+                duration: 2
+            });
+        });
+    });
+</script>
+</body></html>

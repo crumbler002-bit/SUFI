@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SUFI | Predictive Food Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(32, 31, 33, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .intelligence-pulse {
+            box-shadow: 0 0 0 0 rgba(163, 166, 255, 0.4);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(163, 166, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(163, 166, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(163, 166, 255, 0); }
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #a3a6ff, #ff6daf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-bright": "#2c2c2d",
+                "outline": "#767576",
+                "tertiary-dim": "#ff67ad",
+                "secondary-dim": "#8455ef",
+                "on-secondary-fixed": "#40009b",
+                "on-secondary-fixed-variant": "#5f28c8",
+                "on-tertiary-fixed": "#37001d",
+                "on-primary": "#0f00a4",
+                "outline-variant": "#484849",
+                "primary": "#a3a6ff",
+                "secondary-fixed-dim": "#ceb9ff",
+                "surface-container-lowest": "#000000",
+                "primary-container": "#9396ff",
+                "error-dim": "#d73357",
+                "on-primary-fixed": "#000000",
+                "on-tertiary": "#4b002a",
+                "on-tertiary-container": "#2f0018",
+                "tertiary-container": "#fa53a4",
+                "tertiary-fixed": "#ff8cbc",
+                "inverse-on-surface": "#565556",
+                "on-secondary": "#280067",
+                "tertiary-fixed-dim": "#ff73b1",
+                "inverse-surface": "#fcf8f9",
+                "secondary": "#ac8aff",
+                "on-background": "#ffffff",
+                "surface": "#0e0e0f",
+                "inverse-primary": "#494bd7",
+                "on-secondary-container": "#d9c8ff",
+                "on-primary-fixed-variant": "#0e009d",
+                "primary-dim": "#6063ee",
+                "surface-container-low": "#131314",
+                "primary-fixed-dim": "#8387ff",
+                "surface-container-high": "#201f21",
+                "on-error-container": "#ffb2b9",
+                "primary-fixed": "#9396ff",
+                "surface-container": "#1a191b",
+                "background": "#0e0e0f",
+                "on-surface-variant": "#adaaab",
+                "on-tertiary-fixed-variant": "#740044",
+                "error": "#ff6e84",
+                "tertiary": "#ff6daf",
+                "secondary-container": "#5516be",
+                "on-primary-container": "#0a0081",
+                "surface-container-highest": "#262627",
+                "surface-variant": "#262627",
+                "on-surface": "#ffffff",
+                "secondary-fixed": "#dac9ff",
+                "error-container": "#a70138",
+                "surface-dim": "#0e0e0f",
+                "on-error": "#490013",
+                "surface-tint": "#a3a6ff"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0f]/80 backdrop-blur-xl shadow-[0px_0px_40px_rgba(163,166,255,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<div class="hidden md:flex gap-8">
+<a class="text-[#a3a6ff] border-b-2 border-[#a3a6ff] pb-1 font-headline font-bold tracking-tight" href="#">Explore</a>
+<a class="text-[#adaaab] hover:text-white transition-colors font-headline font-bold tracking-tight" href="#">Intelligence</a>
+<a class="text-[#adaaab] hover:text-white transition-colors font-headline font-bold tracking-tight" href="#">Concierge</a>
+<a class="text-[#adaaab] hover:text-white transition-colors font-headline font-bold tracking-tight" href="#">History</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-white/5">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<span class="text-on-surface-variant text-sm">Smart Search...</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">notifications_active</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">account_circle</span>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- HERO: Predictive Simulation -->
+<section class="relative min-h-[921px] flex flex-col items-center justify-center px-6 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tertiary/10 blur-[120px] rounded-full"></div>
+</div>
+<div class="relative z-10 text-center max-w-4xl mx-auto">
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter mb-8">
+                    Predictive <span class="text-gradient">Dining</span> Logic.
+                </h1>
+<!-- Simulation Component -->
+<div class="glass-panel p-2 md:p-4 rounded-[2rem] border border-white/10 shadow-2xl max-w-2xl mx-auto mb-12 overflow-hidden">
+<!-- User Input State -->
+<div class="flex items-center bg-surface-container-lowest p-6 rounded-[1.5rem] mb-4">
+<span class="text-primary mr-4 material-symbols-outlined" data-weight="fill">auto_awesome</span>
+<div class="text-left">
+<p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-1">User Intent</p>
+<p class="text-xl font-medium tracking-tight">"romantic dinner with wine"</p>
+</div>
+<div class="ml-auto flex gap-1">
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.5s]"></div>
+</div>
+</div>
+<!-- AI Processing Visual -->
+<div class="relative h-64 grid grid-cols-3 gap-4 px-2">
+<!-- Card 1 (Shifted) -->
+<div class="bg-surface-container p-4 rounded-2xl border border-white/5 opacity-40 translate-y-8 transition-all duration-700">
+<div class="w-full h-24 bg-surface-container-high rounded-xl mb-3"></div>
+<div class="h-3 w-3/4 bg-on-surface-variant/20 rounded"></div>
+</div>
+<!-- Card 2 (Elevated Best Match) -->
+<div class="bg-surface-container-highest p-4 rounded-2xl border-2 border-primary/30 shadow-[0px_0px_30px_rgba(163,166,255,0.2)] -translate-y-4 transition-all duration-700">
+<div class="relative w-full h-32 rounded-xl mb-4 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Intimate candlelit restaurant interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6zRNLmJGZDVLmivWRG9rPYCpm8NLfUzlptwL8bqfUnf8GFgU-XoBFWfGd-jql4Ky7q9jrGq7xx6m2glbmQMb81AQ4eVJl12JPmWDxmw9uXbGKARwSwrlj7emtnzWCCWs7TCkg0z4my3JLZuCM2wV4D4yfphyHKC9Ea7yz_C8MMo2n-Fr8ep5JXs9ljJ7_YyMTnbf3cHcotMyYdQyxMZ2hwnlCvfpVb-JWH5BQFDMD_LLG7cPSkvga8GjWc-y4ndllvsooiaUlYg"/>
+<div class="absolute top-2 right-2 bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded-full intelligence-pulse">98% MATCH</div>
+</div>
+<div class="h-4 w-1/2 bg-primary/20 rounded mb-2"></div>
+<div class="flex gap-2">
+<span class="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded-full">Cabernet Selection</span>
+<span class="bg-tertiary/10 text-tertiary text-[10px] px-2 py-0.5 rounded-full">Candlelit</span>
+</div>
+</div>
+<!-- Card 3 (Shifted) -->
+<div class="bg-surface-container p-4 rounded-2xl border border-white/5 opacity-40 translate-y-8 transition-all duration-700">
+<div class="w-full h-24 bg-surface-container-high rounded-xl mb-3"></div>
+<div class="h-3 w-1/2 bg-on-surface-variant/20 rounded"></div>
+</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-lg max-w-xl mx-auto mb-10">
+                    SUFI isn't a search engine. It's an intelligence layer that anticipates your palate before you even type.
+                </p>
+</div>
+</section>
+<!-- DISCOVERY DEMO: Bento Morphing Grid -->
+<section class="py-24 px-8 max-w-[1400px] mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+<div class="max-w-xl">
+<span class="text-tertiary font-bold tracking-widest text-xs uppercase mb-4 block">Morphing Results</span>
+<h2 class="font-headline text-4xl font-bold tracking-tight">The Personalization Drift</h2>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high hover:bg-surface-container-highest px-6 py-3 rounded-xl transition-all border border-white/5 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">tune</span> Filter Palate
+                    </button>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+                        Sync Intelligence
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-auto md:h-[600px]">
+<!-- Main Feature -->
+<div class="md:col-span-2 md:row-span-2 glass-panel rounded-3xl border border-white/10 overflow-hidden relative group">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="High-end sushi platter with gold leaf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4bytAQTA0qB_Y_KkD59Jpqva7EbwxT-zScj2EQw55rCX4EQpFyfiPAjPLT2Z7HLCYUKYuumguonkLoloxDLAmAx2ZpLNCb84-R29tvpKblSZiglmGH3_c5MaOmATOMFtPwXcvItBGU-GQjZZcGtFuJVhTtWiK_cTpzKn6T8bVJgMpP42R5Q2Wa3tga3neBzozQ7PF6-lAHhsPcbK-oTGl_JwAZEGHSU2s1bdJIwc1onp7RqZsF5v5NJtDqY_qDBJcDer0NWVchg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-[10px] font-bold tracking-widest text-on-surface uppercase">Live Recommendation</span>
+</div>
+<h3 class="font-headline text-3xl font-bold mb-2">The Omakase Flow</h3>
+<p class="text-on-surface-variant max-w-sm">Predictive pacing based on your previous 12 sushi sessions.</p>
+</div>
+</div>
+<!-- Bento 2 -->
+<div class="md:col-span-2 glass-panel rounded-3xl border border-white/10 p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-secondary-container rounded-2xl">
+<span class="material-symbols-outlined text-on-secondary-container">restaurant_menu</span>
+</div>
+<span class="text-on-surface-variant text-sm font-medium">Predicted for 7:00 PM</span>
+</div>
+<div>
+<h4 class="text-xl font-bold mb-1">Modern Bistro</h4>
+<p class="text-on-surface-variant text-sm">94% Alcohol-pairing accuracy.</p>
+</div>
+<div class="flex -space-x-3 mt-4">
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAhU2p_6or8vuTusjkDMTwX8PsGlo6QpBOd2nALjqoFwv1dCygNsPrLVTdusiCyL1Z87UN-mmqetHjmLYrpKssJrOGro9o3YiqSEDtNEc6ToXPjzp6NYc9da9SLkC1rPWZbJaUdfPSILC_C6vBd__VlX1Zferki168zhRpsRE5T5_PaRFO4cTgeqKEKcVDDfAS8F-LxoI4JQy90yExBTh_1oq6sQEOMnNgwY23_mXwbbDDYFUgmhgEr9tTPj15kiZZhEH8EeZcBQ"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASCrcyRrdwBGPOYc2_1_WDdoQcS0-5xYpxcYtDltNw0XACy5HG4PTAi9YrP6fy6Ykyh1ONugVRNu4lMmXwfaL3CgluSC8LGRyV1dPtwbowee-47ClDVxIEDNvVjH6aV_LPT3lxtX3tJFb9KQ_KCWgaRYKdZDlJ7-cRvyhdCzgAmW1hmZEgHAs8jkpjn4MzA7S_x5vkwDem23zZmtdCuAWIfFerJbHBi0UiIeIUZZ6uaOnkP6THj7V6XEPJ6o16MrIp4xvBM8P3Gg"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">+14</div>
+</div>
+</div>
+<!-- Bento 3 -->
+<div class="glass-panel rounded-3xl border border-white/10 p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/10 blur-3xl"></div>
+<span class="material-symbols-outlined text-tertiary mb-4">auto_graph</span>
+<h4 class="font-bold text-lg leading-tight">Palate Growth</h4>
+<p class="text-2xl font-black text-white mt-2">+12%</p>
+</div>
+<!-- Bento 4 -->
+<div class="bg-primary/10 rounded-3xl border border-primary/20 p-6 flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-2">smart_toy</span>
+<p class="font-bold text-primary">Concierge Ready</p>
+</div>
+</div>
+</section>
+<!-- AI CONCIERGE DEMO: Conversational UI -->
+<section class="py-24 bg-surface-container-low">
+<div class="max-w-4xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="font-headline text-4xl font-bold mb-4">Personal Concierge</h2>
+<p class="text-on-surface-variant">Real-time intelligence streaming into action.</p>
+</div>
+<div class="glass-panel rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+<div class="p-4 bg-surface-container border-b border-white/5 flex items-center gap-3">
+<div class="w-3 h-3 bg-red-500 rounded-full"></div>
+<div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+<div class="w-3 h-3 bg-green-500 rounded-full"></div>
+<span class="ml-4 text-xs font-bold tracking-widest text-on-surface-variant uppercase">Sufi_Concierge_v4.2</span>
+</div>
+<div class="p-8 space-y-8">
+<!-- User Msg -->
+<div class="flex justify-end">
+<div class="bg-surface-container-highest px-6 py-4 rounded-3xl rounded-tr-none max-w-md border border-white/5">
+<p class="text-on-surface">Find me something quiet for tonight, 8pm, for two people. Preferably Italian.</p>
+</div>
+</div>
+<!-- AI Response Streaming -->
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shrink-0 intelligence-pulse">
+<span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
+</div>
+<div class="space-y-6 flex-1">
+<div class="bg-surface-container px-6 py-4 rounded-3xl rounded-tl-none border border-white/5">
+<p class="text-on-surface leading-relaxed">
+                                        Analyzing local noise data and your history... I've identified <span class="text-primary font-bold">L'Artusi Secret Garden</span> as your best match. It has a noise level of 42dB tonight, and they just opened a slot at 8:15 PM. 
+                                    </p>
+</div>
+<!-- Inline Card -->
+<div class="glass-panel border border-primary/30 rounded-3xl overflow-hidden flex flex-col md:flex-row max-w-lg">
+<div class="w-full md:w-40 h-40 shrink-0">
+<img class="w-full h-full object-cover" data-alt="Modern upscale dining room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTrKGmolpstQkZ3Os8iCsp7LWEx0YvUbj7noEjh87t4gTlwanNM4H8sYxVylJ9dCUI1FasRoB7jOJl4W4fBVkTdxXMnDSy_WgmpbKWMHDpzWj1OkJeoY4YZTRQ_LUr7_RQ1CfhJQtyJs9oDktqTdpZlW9d1rxSGrhP5K3_I4tIhyLVxN-Co6WpqGiUDMzEn6oJELhPD_58bvTyHpjJ3uZ2wIXY1UP1fx19JHvdHQOgleogWu1vNry2j9MdrKkjUia4_dUUXfn8aQ"/>
+</div>
+<div class="p-6 flex flex-col justify-between flex-1">
+<div>
+<h5 class="font-bold text-lg">L'Artusi Secret Garden</h5>
+<p class="text-on-surface-variant text-xs">8:15 PM • West Village</p>
+</div>
+<button class="w-full mt-4 bg-primary text-on-primary py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">event_available</span> Reserve Now
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 bg-surface-container-highest/50 flex items-center gap-4">
+<div class="flex-1 bg-surface-container-lowest border border-white/10 rounded-full px-6 py-3 text-on-surface-variant flex items-center justify-between">
+<span>Ask your concierge...</span>
+<span class="material-symbols-outlined text-primary">mic</span>
+</div>
+<button class="bg-primary-container text-on-primary-container p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- OWNER SYSTEM DEMO: Analytics & Growth -->
+<section class="py-24 px-8 max-w-[1400px] mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<div class="lg:col-span-4 space-y-8">
+<div>
+<span class="text-secondary font-bold tracking-widest text-xs uppercase mb-4 block">Owner Intelligence</span>
+<h2 class="font-headline text-4xl font-bold tracking-tight">System Status: <span class="text-green-400">Optimal</span></h2>
+</div>
+<!-- Booking Ping -->
+<div class="bg-surface-container-low p-6 rounded-3xl border border-white/5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-on-surface-variant uppercase">New Booking</span>
+<span class="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full">Just Now</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high border border-white/10 overflow-hidden">
+<img data-alt="Customer avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBufGuqrRKgrWamyojhqFUlovAklx4yDtC_aXdZoCoV6jOAS0jZp5HuB9CXbVVin004ikpNHWoyUKeBxOsEYGjaWBv0_qZFZGv7lHzM2c04YXvVh4HTIOgeiHsLyn1Jgm213B8pK7af8UlW2WfeGCbo2ptjir2NyGdT24KTy5qAc-mWGyahl_Vh3B2-hR0-UiND_8qUD6avwwG14QXGLcyrOb3P8syPiprTAtsSHG0IqrDc3t0KpICUooZ7T_j1I3i6jieBr9Xedw"/>
+</div>
+<div>
+<h4 class="font-bold text-lg">Marcus Aurelius</h4>
+<p class="text-on-surface-variant text-sm">Table 4 • 2 Guests • 8:30 PM</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-6 rounded-3xl border border-white/5">
+<p class="text-on-surface-variant text-xs mb-2">Efficiency</p>
+<p class="text-3xl font-black">98.2%</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl border border-white/5">
+<p class="text-on-surface-variant text-xs mb-2">Growth</p>
+<p class="text-3xl font-black text-tertiary">+24%</p>
+</div>
+</div>
+</div>
+<div class="lg:col-span-8">
+<div class="glass-panel p-8 rounded-[2.5rem] border border-white/10 h-full">
+<div class="flex items-center justify-between mb-12">
+<h3 class="font-bold text-xl">Revenue Forecasting</h3>
+<div class="flex gap-2">
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-bold">7 Days</span>
+<span class="px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-bold">30 Days</span>
+</div>
+</div>
+<!-- Growth Line Graph Mock -->
+<div class="relative h-64 flex items-end gap-2 group">
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[40%] hover:bg-primary/40 transition-all cursor-pointer relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold">$12k</div>
+</div>
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[55%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[45%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[70%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[65%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary/20 rounded-t-xl h-[85%] hover:bg-primary/40 transition-all cursor-pointer"></div>
+<div class="flex-1 bg-primary h-[95%] hover:bg-primary/90 transition-all cursor-pointer shadow-[0px_-10px_30px_rgba(163,166,255,0.3)]"></div>
+</div>
+<div class="flex justify-between mt-6 px-2">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Week 01</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Week 02</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Week 03</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Week 04</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- SideNavBar (Mobile Bottom Viewport - Hidden on Desktop) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#0e0e0f]/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 flex justify-between items-center">
+<div class="flex flex-col items-center gap-1 text-[#a3a6ff]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-bold">Dashboard</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#adaaab]">
+<span class="material-symbols-outlined">restaurant_menu</span>
+<span class="text-[10px] font-bold">Meal Plan</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#adaaab]">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="text-[10px] font-bold">Concierge</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#adaaab]">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold">Settings</span>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-16 bg-[#0e0e0f] border-t border-white/5 mt-24">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full gap-8">
+<div class="flex flex-col gap-2 items-center md:items-start">
+<span class="text-2xl font-black text-white tracking-tighter font-headline">SUFI</span>
+<p class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] font-medium">© 2024 SUFI Intelligence. All systems operational.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-[#ff6daf] transition-colors font-medium" href="#">Connectivity</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-[#ff6daf] transition-colors font-medium" href="#">API</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-[#ff6daf] transition-colors font-medium" href="#">Privacy</a>
+<a class="font-label text-[10px] uppercase tracking-widest text-[#adaaab] hover:text-[#ff6daf] transition-colors font-medium" href="#">Status</a>
+</div>
+</div>
+</footer>
+</body></html>

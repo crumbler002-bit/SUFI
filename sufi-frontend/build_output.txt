@@ -1,0 +1,98 @@
+﻿
+> sufi-frontend@0.1.0 build
+> next build
+
+node.exe : ΓÜá Warning: 
+Next.js inferred your 
+workspace root, but it 
+may not be correct.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo      
+        : NotSpecified  
+  : (ΓÜá Warning: Ne.   
+ ..not be correct.:S    
+tring) [], RemoteEx    
+ception
+    + FullyQualifiedErr 
+   orId : NativeComman  
+  dError
+ 
+ We detected multiple 
+lockfiles and selected 
+the directory of C:\User
+s\KIIT\package-lock.json
+ as the root directory.
+ To silence this 
+warning, set 
+`turbopack.root` in 
+your Next.js config, or 
+consider removing one 
+of the lockfiles if 
+it's not needed.
+   See https://nextjs.or
+g/docs/app/api-reference
+/config/next-config-js/t
+urbopack#root-directory 
+for more information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\KIIT\Deskt
+op\SUFI\sufi-frontend\pa
+ckage-lock.json
+
+Γû▓ Next.js 16.2.1 (Turbopack)
+
+  Creating an optimized production build ...
+Found 1 warning while 
+optimizing generated 
+CSS:
+
+[2mΓöé   }[22m
+[2mΓöé }[22m
+[2mΓöé[22m @import url
+('https://fonts.googleap
+is.com/css2?family=Inter
+:opsz,wght@14..32,400;14
+..32,500;14..32,600;14..
+32,700&display=swap');
+[2mΓöå[22m        
+[33m[2m^--[22m 
+@import rules must 
+precede all rules aside 
+from @charset and 
+@layer statements[39m
+[2mΓöå[22m
+[2mΓöé * {[22m
+[2mΓöé   border-color: 
+rgba(255,255,255,0.1);[
+22m
+
+Γ£ô Compiled successfully in 4.3s
+  Running TypeScript ...
+  Finished TypeScript in 3.5s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+Γ£ô Generating static pages using 8 workers (7/7) in 652ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/ai
+Γö£ ╞Æ /api/search
+Γöö ╞Æ /api/trends
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
