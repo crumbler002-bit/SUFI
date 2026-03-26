@@ -48,6 +48,7 @@ from app.routes import (
     user_dashboard_routes,
     concierge_routes,
     owner_notification_routes,
+    search,
 )
 
 app = FastAPI(title="SUFI API")
@@ -62,6 +63,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+app.include_router(search.router, prefix="/api")
 app.include_router(auth_routes.router)
 app.include_router(restaurant_routes.router)
 app.include_router(restaurant_media_routes.router)
