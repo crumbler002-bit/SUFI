@@ -32,7 +32,7 @@ class Restaurant(Base):
     total_reviews = Column(Integer, default=0)
     reservation_count = Column(Integer, default=0)
     popularity_score = Column(Float, default=0.0)
-    embedding = Column(Vector(1024))  # semantic search embedding
+    embedding = Column(Vector(1536))  # OpenAI text-embedding-3-small dimensionality
     google_place_id = Column(String, unique=True, index=True, nullable=True)
     auto_cancellation_enabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

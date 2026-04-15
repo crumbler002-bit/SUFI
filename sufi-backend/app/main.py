@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import sys
+from pathlib import Path
 
 from app.database import engine, Base
 
@@ -50,6 +52,13 @@ from app.routes import (
     owner_notification_routes,
     search,
 )
+from app.api.v1.discovery import router as discovery_v1_router
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from api.main import app as intelligence_app
 
 app = FastAPI(title="SUFI API")
 
@@ -64,6 +73,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(search.router, prefix="/api")
+app.include_router(discovery_v1_router)
 app.include_router(auth_routes.router)
 app.include_router(restaurant_routes.router)
 app.include_router(restaurant_media_routes.router)
@@ -87,6 +97,7 @@ app.include_router(intelligence_routes._automation_router)
 app.include_router(user_dashboard_routes.router)
 app.include_router(concierge_routes.router)
 app.include_router(owner_notification_routes.router)
+app.mount("/intelligence", intelligence_app)
 
 @app.get("/")
 def root():
