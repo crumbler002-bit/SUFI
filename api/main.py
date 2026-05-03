@@ -84,6 +84,13 @@ def embed_query(query: str) -> list[float]:
 def ensure_vector_index() -> None:
     db = SessionLocal()
     try:
+        # Check if pgvector extension is available before trying to create it
+        result = db.execute(text(
+            "SELECT 1 FROM pg_available_extensions WHERE name = 'vector'"
+        )).fetchone()
+        if not result:
+            print("[intelligence] pgvector extension not available — skipping vector index setup")
+            return
         db.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         db.execute(
             text(
@@ -96,13 +103,19 @@ def ensure_vector_index() -> None:
             )
         )
         db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[intelligence] vector index setup skipped: {e}")
     finally:
         db.close()
 
 
 @app.on_event("startup")
 def startup() -> None:
-    ensure_vector_index()
+    try:
+        ensure_vector_index()
+    except Exception as e:
+        print(f"[intelligence] startup skipped: {e}")
 
 
 @app.get("/health")
@@ -112,7 +125,6 @@ def healthcheck() -> dict[str, str]:
 
 @app.post("/rank", response_model=RankResponse)
 def rank_restaurants(payload: RankRequest) -> RankResponse:
-    ensure_vector_index()
 
     vector = embed_query(payload.query)
     vector_literal = "[" + ",".join(f"{value:.8f}" for value in vector) + "]"

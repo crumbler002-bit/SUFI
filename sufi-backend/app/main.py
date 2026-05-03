@@ -58,7 +58,14 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from api.main import app as intelligence_app
+# Mount intelligence sub-app only if it imports cleanly
+try:
+    from api.main import app as intelligence_app
+    _intelligence_available = True
+except Exception as e:
+    print(f"[startup] intelligence sub-app skipped: {e}")
+    intelligence_app = None
+    _intelligence_available = False
 
 app = FastAPI(title="SUFI API")
 
@@ -97,7 +104,8 @@ app.include_router(intelligence_routes._automation_router)
 app.include_router(user_dashboard_routes.router)
 app.include_router(concierge_routes.router)
 app.include_router(owner_notification_routes.router)
-app.mount("/intelligence", intelligence_app)
+if _intelligence_available and intelligence_app is not None:
+    app.mount("/intelligence", intelligence_app)
 
 @app.get("/")
 def root():
@@ -108,7 +116,8 @@ def root():
 async def warm_cache():
     """Pre-warm dashboard cache in the background — doesn't block server startup."""
     import asyncio
-    asyncio.get_event_loop().run_in_executor(None, _warm_cache_sync)
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, _warm_cache_sync)
 
 
 def _warm_cache_sync():

@@ -1,14 +1,7 @@
 """
 LLM Client
-Wraps OpenAI chat completions with graceful fallback to keyword-based parsing.
-
-Usage:
-  from app.services.ai.llm_client import llm_chat, LLM_AVAILABLE
-
-  if LLM_AVAILABLE:
-      result = llm_chat(messages, response_format="json")
-  else:
-      # fall back to regex/keyword logic
+Prefers Groq (free, fast). Falls back to OpenAI if available.
+Falls back to keyword-based parsing if neither is configured.
 """
 
 import json
@@ -21,19 +14,36 @@ logger = logging.getLogger(__name__)
 
 LLM_AVAILABLE = False
 _client = None
+_model = None
 
+# Try Groq first
 try:
-    if settings.OPENAI_API_KEY:
-        from openai import OpenAI
-        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    if settings.GROQ_API_KEY:
+        from groq import Groq
+        _client = Groq(api_key=settings.GROQ_API_KEY)
+        _model = settings.GROQ_MODEL
         LLM_AVAILABLE = True
-        logger.info("OpenAI LLM client initialised (model=%s)", settings.OPENAI_MODEL)
-    else:
-        logger.info("OPENAI_API_KEY not set — using keyword-based fallback")
+        logger.info("Groq LLM client initialised (model=%s)", _model)
 except ImportError:
-    logger.info("openai package not installed — using keyword-based fallback")
+    logger.info("groq package not installed — trying OpenAI")
 except Exception as e:
-    logger.warning("LLM client init failed: %s — using fallback", e)
+    logger.warning("Groq client init failed: %s", e)
+
+# Fall back to OpenAI
+if not LLM_AVAILABLE:
+    try:
+        if settings.OPENAI_API_KEY:
+            from openai import OpenAI
+            _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            _model = settings.OPENAI_MODEL
+            LLM_AVAILABLE = True
+            logger.info("OpenAI LLM client initialised (model=%s)", _model)
+        else:
+            logger.info("No LLM API key set — using keyword-based fallback")
+    except ImportError:
+        logger.info("openai package not installed — using keyword-based fallback")
+    except Exception as e:
+        logger.warning("LLM client init failed: %s — using fallback", e)
 
 
 def llm_chat(
@@ -43,15 +53,11 @@ def llm_chat(
     temperature: float = 0.3,
     max_tokens: int = 512,
 ) -> str | None:
-    """
-    Call the LLM and return the assistant's reply as a string.
-    Returns None if unavailable or on error.
-    """
     if not LLM_AVAILABLE or _client is None:
         return None
     try:
         kwargs: dict[str, Any] = {
-            "model": settings.OPENAI_MODEL,
+            "model": _model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
@@ -70,23 +76,6 @@ def llm_parse_intent_and_entities(
     query: str,
     history: list[dict],
 ) -> dict | None:
-    """
-    Ask the LLM to extract intent + entities from the user query in JSON.
-    Returns None if LLM unavailable or parse fails.
-
-    Expected JSON shape:
-    {
-      "intent": "booking|recommendation|availability|cancel|general",
-      "entities": {
-        "party_size": int | null,
-        "time_str": "HH:MM" | null,
-        "date_str": "YYYY-MM-DD" | null,
-        "cuisine": str | null,
-        "city": str | null,
-        "price_limit": int | null
-      }
-    }
-    """
     if not LLM_AVAILABLE:
         return None
 
@@ -97,10 +86,9 @@ def llm_parse_intent_and_entities(
         "intent must be one of: booking, recommendation, availability, cancel, general. "
         "entities keys: party_size (int), time_str (HH:MM 24h), date_str (YYYY-MM-DD), "
         "cuisine (string), city (string), price_limit (int). "
-        "Use null for missing values. Today's date context is available in history."
+        "Use null for missing values."
     )
 
-    # Include recent history for context (last 6 messages)
     recent = [m for m in history if m["role"] in ("user", "assistant")][-6:]
     messages = [{"role": "system", "content": system}] + recent + [
         {"role": "user", "content": query}
@@ -124,29 +112,25 @@ def llm_generate_reply(
     action: dict | None,
     user_context: str,
 ) -> str | None:
-    """
-    Generate a natural language reply using the LLM with full context.
-    Returns None if LLM unavailable.
-    """
     if not LLM_AVAILABLE:
         return None
 
     rest_summary = ""
     if restaurants:
-        lines = [f"  - {r['name']} ({r.get('cuisine','')}, {r.get('rating','')}⭐)" for r in restaurants[:3]]
+        lines = [
+            f"  - {r['name']} ({r.get('cuisine', '')}, {r.get('city', '')}"
+            + (f", ★{r.get('rating')}" if r.get("rating") else "") + ")"
+            for r in restaurants[:3]
+        ]
         rest_summary = "Matching restaurants:\n" + "\n".join(lines)
 
-    action_summary = ""
-    if action:
-        action_summary = f"Action result: {json.dumps(action)}"
+    action_summary = f"Action result: {json.dumps(action)}" if action else ""
 
     system = (
-        "You are SUFI, an AI restaurant concierge. "
-        "Be concise, warm, and helpful. 1-3 sentences max. "
+        "You are SUFI, a warm and concise AI restaurant concierge. "
+        "Reply in 1-3 sentences. Highlight the top restaurant pick. "
         "If a booking was made, confirm it clearly. "
-        "If recommending, highlight the top pick briefly. "
-        "Never mention JSON or internal data structures.\n\n"
-        f"User context:\n{user_context}\n\n"
+        "Never mention JSON or internal data.\n\n"
         f"{rest_summary}\n{action_summary}"
     )
 
