@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ownerApi } from "@/lib/api";
 import { useAuth } from "@/store/appStore";
 import SufiCard from "@/components/ui/SufiCard";
+import NoiseCard from "@/components/ui/NoiseCard";
 import { useState } from "react";
 
 export default function OwnerDashboard() {
@@ -74,7 +75,7 @@ export default function OwnerDashboard() {
 
       {/* AI Insights */}
       {dashboard?.insights && dashboard.insights.length > 0 && (
-        <SufiCard glow>
+        <NoiseCard className="p-5" noiseOpacity={0.05}>
           <h3 className="text-sm font-medium mb-3 text-accent">AI Insights</h3>
           <ul className="flex flex-col gap-2">
             {dashboard.insights.map((insight, i) => (
@@ -84,7 +85,7 @@ export default function OwnerDashboard() {
               </li>
             ))}
           </ul>
-        </SufiCard>
+        </NoiseCard>
       )}
 
       {/* Locations overview */}

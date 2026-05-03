@@ -7,6 +7,9 @@ import { restaurantApi, type Restaurant } from "@/lib/api";
 import { useAuth } from "@/store/appStore";
 import SufiCard from "@/components/ui/SufiCard";
 import SufiButton from "@/components/ui/SufiButton";
+import VideoText from "@/components/ui/VideoText";
+import BorderGlow from "@/components/ui/BorderGlow";
+import NoiseCard from "@/components/ui/NoiseCard";
 import AuthModal from "@/components/auth/AuthModal";
 import ReservationModal from "@/components/reservation/ReservationModal";
 
@@ -93,6 +96,13 @@ export default function GuestApp() {
   );
 }
 
+const SUGGESTIONS = [
+  "Romantic dinner tonight",
+  "Best sushi in the city",
+  "Outdoor seating for 4",
+  "Quick lunch under ₹500",
+];
+
 // ── AI Concierge Tab ──────────────────────────────────────────────────────────
 function ConciergeTab({
   onBook,
@@ -104,53 +114,57 @@ function ConciergeTab({
   const [query, setQuery] = useState("");
   const { mutate, isPending, data, reset } = useConcierge();
 
-  const handleSend = useCallback(() => {
-    if (!query.trim()) return;
-    mutate(query);
+  const handleSend = useCallback((q?: string) => {
+    const text = q ?? query;
+    if (!text.trim()) return;
+    mutate(text);
     setQuery("");
   }, [query, mutate]);
 
   return (
-    <div className="flex flex-col items-center px-6 pt-16 pb-12">
-      {/* Idle state */}
+    <div className="flex flex-col items-center px-6 pt-14 pb-12">
+
+      {/* Hero — VideoText (shows video through letters, falls back gracefully if no video) */}
       {!data && !isPending && (
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold tracking-tight mb-3">
-            What are you craving?
-          </h2>
-          <p className="text-gray-400 text-sm max-w-sm">
-            Describe a mood, cuisine, or occasion. SUFI will find the right spot and book it for you.
+        <div className="w-full max-w-4xl mb-10">
+          <VideoText src="/hero.mp4" fontSize={7} className="h-[140px] rounded-2xl">
+            SUFI
+          </VideoText>
+          <p className="text-gray-400 text-sm max-w-md text-center mx-auto mt-4">
+            Describe a mood, cuisine, or occasion — SUFI finds the spot and books it.
           </p>
         </div>
       )}
 
-      {/* Input */}
-      <div className="w-full max-w-2xl flex gap-3">
-        <div className="flex-1 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white/[0.05] border border-white/[0.08] focus-within:border-accent/50 transition-colors">
-          <span className="text-accent text-sm animate-pulse">◎</span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="e.g. romantic dinner with good wine, Italian near me..."
-            className="flex-1 bg-transparent text-sm placeholder-gray-500 focus:outline-none"
-          />
-        </div>
-        <SufiButton onClick={handleSend} disabled={isPending}>
-          {isPending ? "Thinking..." : "Ask"}
-        </SufiButton>
+      {/* Input — wrapped in BorderGlow */}
+      <div className="w-full max-w-2xl">
+        <BorderGlow>
+          <div className="bg-[#111827] rounded-2xl flex items-center px-5 py-3.5 gap-3">
+            <span className="text-accent text-sm animate-pulse">◎</span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="e.g. romantic dinner with good wine, Italian near me..."
+              className="flex-1 bg-transparent text-sm placeholder-gray-500 focus:outline-none"
+            />
+            <SufiButton onClick={() => handleSend()} disabled={isPending}>
+              {isPending ? "Thinking..." : "Ask"}
+            </SufiButton>
+          </div>
+        </BorderGlow>
       </div>
 
-      {/* Hint chips */}
+      {/* Suggestion chips — fire immediately on click */}
       {!data && !isPending && (
         <div className="flex flex-wrap gap-2 mt-5 justify-center">
-          {["Romantic dinner tonight", "Best sushi in the city", "Outdoor seating for 4", "Quick lunch under ₹500"].map((hint) => (
+          {SUGGESTIONS.map((s) => (
             <button
-              key={hint}
-              onClick={() => { setQuery(hint); }}
-              className="text-xs px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.07] text-gray-400 hover:text-white hover:border-white/20 transition-all"
+              key={s}
+              onClick={() => handleSend(s)}
+              className="text-xs px-4 py-2 rounded-full bg-white/4 border border-white/8 text-gray-400 hover:text-white hover:border-white/20 transition-all"
             >
-              {hint}
+              {s}
             </button>
           ))}
         </div>
@@ -174,34 +188,35 @@ function ConciergeTab({
 
       {/* Response */}
       {data && (
-        <div className="mt-8 w-full max-w-2xl flex flex-col gap-4">
-          <div className="p-4 rounded-xl bg-accent/[0.07] border border-accent/15 text-sm text-gray-200 leading-relaxed">
+        <div className="mt-8 w-full max-w-5xl flex flex-col gap-6">
+          {/* AI reply bubble */}
+          <div className="max-w-2xl mx-auto w-full p-4 rounded-xl bg-accent/[0.07] border border-accent/15 text-sm text-gray-200 leading-relaxed">
             {data.reply}
           </div>
 
+          {/* Results grid — NoiseCard */}
           {data.restaurants && data.restaurants.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-3">
-              {data.restaurants.slice(0, 4).map((r) => (
-                <SufiCard key={r.id}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-semibold">{r.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {r.cuisine} · {r.city}
-                        {r.rating ? ` · ★ ${r.rating.toFixed(1)}` : ""}
-                      </p>
-                      {r.reason && (
-                        <p className="text-xs text-accent mt-2 italic">✨ {r.reason}</p>
-                      )}
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {data.restaurants.slice(0, 6).map((r) => (
+                <NoiseCard key={r.id} className="flex flex-col p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/6 flex items-center justify-center text-lg">🍽️</div>
+                    {r.rating && (
+                      <span className="text-xs text-yellow-400">★ {r.rating.toFixed(1)}</span>
+                    )}
                   </div>
+                  <p className="font-semibold text-white">{r.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{r.cuisine} · {r.city}</p>
+                  {r.reason && (
+                    <p className="text-xs text-accent mt-2 italic flex-1">✨ {r.reason}</p>
+                  )}
                   <SufiButton
-                    className="mt-3 w-full"
+                    className="mt-4 w-full"
                     onClick={() => onBook({ id: r.id, name: r.name })}
                   >
                     Book table
                   </SufiButton>
-                </SufiCard>
+                </NoiseCard>
               ))}
             </div>
           )}
